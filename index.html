@@ -2,32 +2,53 @@
 <html>
     <head>
         <title>Auto Planner</title>
-        <link rel="stylesheet" type="text/css" href="style.css">
+        <link rel="stylesheet" type="text/css" href="style/style.css">
+        <link rel="stylesheet" type="text/css" href="style/index.css">
     </head>
     <body>
         <header>
             <div class="site-title">
-                <a href="/">
-                    <h1 class="title">Auto Planner</h1>
-                </a>
+                <a href="/">Auto Planner </a>
             </div>
             <div class="settings-nav">
                 <div class="settings-container">
                     <a href="/personalization.html">
+                        <img src="/img/cog.webp" alt="temp cog" width="75" height="75">
                     </a>
                 </div>
                 <div class="account-container">
                     <a href="/account.html">
+                        <img src="/img/account.webp" alt="account silhouette" width="75" height="75">
                     </a>
                 </div>
             </div>
         </header>
 
+        <div id="confirm-popup" class="hidden">
+        </div>
+
+        <div id="welcome-popup-container" class="popup-container hidden">
+        </div>
+
+        <div id="task-popup-container" class="popup-container hidden">
+        </div>
+
+        <div id="event-popup-container" class="popup-container hidden">
+        </div>
+
         <main>
+            <div class="page-top">
+            </div>
             <div class="calendar-container">
+                <div class="weekday-container">
+                </div>
+                <div class="calendar-grid-container">
+                    <!-- Adds day divs here -->
+                </div>
             </div>
             <div class="task-view-container">
                 <div class="day-list-container">
+                    <!-- add task divs here -->
                 </div>
             </div>
         </main>
