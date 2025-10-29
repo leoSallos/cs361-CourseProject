@@ -85,7 +85,14 @@ pub fn main() !void {
 
         // get data to respond
         const contentType = getContentType(path);
-        const data = readFile(path, allocator) catch |err| {
+        var filePath: []u8 = undefined;
+        if (mem.eql(u8, contentType, "text/html")){
+            filePath = try mem.concat(allocator, u8, &[_][]const u8{"/pages", path});
+        } else {
+            filePath = try mem.concat(allocator, u8, &[_][]const u8{path});
+        }
+        defer allocator.free(filePath);
+        const data = readFile(filePath, allocator) catch |err| {
             if (err == error.FileNotFound){
                 try writer.writeAll(get404());
                 try writer.flush();
