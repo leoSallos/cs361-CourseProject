@@ -1,3 +1,5 @@
+const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
 function buildCalendarGrid(date){
     // get container
     var container = document.getElementById("page-calendar");
@@ -50,6 +52,10 @@ function buildCalendar(date){
 function init(){
     // get date
     var today = new Date();
+
+    // get month lable
+    var monthLabel = document.getElementById("month-label");
+    monthLabel.textContent = months[today.getMonth()] + " " + today.getFullYear();
 
     buildCalendar(today);
 }
