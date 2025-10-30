@@ -9,6 +9,27 @@ main {
     min-width: 65%;
 }
 
+.calendar-header {
+    display: flex;
+    justify-content:space-between;
+}
+
+.calendar-navagation-container {
+    display: flex;
+    align-items: center;
+}
+
+.nav-calendar-button {
+    width: 20px;
+    height: 20px;
+    text-align: center;
+}
+
+.add-entry-container {
+    display: flex;
+    align-items: center;
+}
+
 .calendar-grid-container {
     display: grid;
     grid-template-columns: repeat(7, auto);
@@ -19,6 +40,14 @@ main {
     border: 1px solid black;
     min-width: 100px;
     min-height: 200px;
+}
+
+.day-container.current-day {
+    background-color: lightcoral;
+}
+
+.day-container.selected {
+    background-color: lightblue;
 }
 
 

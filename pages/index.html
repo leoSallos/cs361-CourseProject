@@ -39,10 +39,16 @@
 
         <main>
             <div class="calendar-container">
-                <div class="calendar-navagation-container">
-                    <button id="nav-calendar-back" class="nav-calendar">&larr;</button>
-                    <h1 id="month-label"><h1>
-                    <button id="nav-calendar-forward" class="nav-calendar">&rarr;</button>
+                <div class="calendar-header">
+                    <div class="calendar-navagation-container">
+                        <button id="nav-calendar-back" class="nav-calendar-button">&larr;</button>
+                        <h1 id="month-label"></h1>
+                        <button id="nav-calendar-forward" class="nav-calendar-button">&rarr;</button>
+                    </div>
+                    <div class="add-entry-container">
+                    <button id="add-event-button" class="add-entry-button">Add Event</button>
+                    <button id="add-task-button" class="add-entry-button">Add Task</button>
+                    </div>
                 </div>
                 <div id="page-calendar" class="calendar-grid-container">
                     <p>Sun</p>
