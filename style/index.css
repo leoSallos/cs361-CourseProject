@@ -17,6 +17,8 @@ main {
 .calendar-navagation-container {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    width: 30%;
 }
 
 .nav-calendar-button {

@@ -2,10 +2,13 @@ const months = ["January", "February", "March", "April", "May", "June", "July", 
 var today = new Date();
 const absToday = new Date();
 
+function buildTaskList(date){
+
+}
+
 function selectDay(day){
     // unselect other days
     var selected = document.querySelectorAll("*");
-    console.log(selected);
     selected.forEach((element) => {
         element.classList.remove("selected");
     });
@@ -84,7 +87,8 @@ function clearCalendar(){
     var container = document.getElementById("page-calendar");
 
     while (container.hasChildNodes()){
-        container.removeChild(container.firstChild);
+        if (container.lastChild.localName == "p") break;
+        container.removeChild(container.lastChild);
     }
 }
 
