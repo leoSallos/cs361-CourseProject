@@ -1,8 +1,14 @@
+// date global data
 const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 var dayList = [];
 var today = new Date();
 const absToday = new Date();
+
+// user data
+var prevMonthData = [];
+var currMonthData = [];
+var nextMonthData = [];
 
 function buildTaskList(date){
     // set header text
@@ -64,7 +70,6 @@ function selectDay(day){
         today = new Date(newDate.year, newDate.month, newDate.date);
         refreshSelectedDay();
     }
-
 }
 
 function buildCalendarGrid(date){
