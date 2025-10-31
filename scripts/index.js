@@ -10,6 +10,44 @@ var prevMonthData = [];
 var currMonthData = [];
 var nextMonthData = [];
 
+// testing data
+const testEventData = {
+    name: "test",
+    status: "event",
+    start: 480,
+    end: 590,
+    tags: ["testing", "Event to Test"],
+    location: "Dearborn Hall",
+};
+const testTaskData = {
+    name: "test",
+    status: "task",
+    start: 660,
+    end: 690,
+    tags: ["testing"],
+    priority: 1,
+    due: {
+        year: 2025,
+        month: 9,
+        day: 20,
+    },
+};
+const testCompleteData = {
+    name: "testComp",
+    status: "complete",
+    start: 660,
+    end: 720,
+    tags: ["testing"],
+    priority: 2,
+    due: {
+        year: 2025,
+        month: 9,
+        day: 19,
+    },
+};
+currMonthData[16] = [testEventData, testTaskData];
+currMonthData[15] = [testCompleteData];
+
 function buildTaskList(date){
     // set header text
     var header = document.getElementById("task-list-header");
@@ -72,6 +110,43 @@ function selectDay(day){
     }
 }
 
+function makeNewCalendarTaskElement(data, relMonth, date){
+    // make button
+    var container = document.createElement("button");
+    container.classList.add("task-button");
+    container.addEventListener("click", function(){})
+
+    // make the time text
+    var timeText = document.createElement("p");
+    switch (data.priority){
+        case 0: 
+            timeText.style.color = "green";
+            break;
+        case 1: 
+            timeText.style.color = "yellow";
+            break;
+        case 2:
+            timeText.style.color = "red";
+            break;
+        default:
+            timeText.style.color = "black";
+    }
+    var hour = data.start / 60;
+    if (hour < 12 && hour > 1){
+        var tod = "a";
+    } else if (hour > 12) {
+        hour -= 12;
+        var tod = "p";
+    } else {
+        hour = 12;
+        var tod = "a";
+    }
+    var min = data.start % 60;
+    timeText.textContent = hour + ":" + min + tod;
+
+    return container;
+}
+
 function buildCalendarGrid(date){
     // get container
     var container = document.getElementById("page-calendar");
@@ -101,6 +176,39 @@ function buildCalendarGrid(date){
         dayNum.textContent = idxDate.getDate();
         const dayID = i;
         dayNum.addEventListener("click", function(){selectDay(dayID);});
+
+        // create event divs
+        const idxDateNum = idxDate.getDate();
+        var tasksToAdd = [];
+        var taskElements = [];
+        var taskMonth = '';
+        if (currMonth == idxMon){
+            // curr month data
+            taskMonth = 'c';
+            if (currMonthData[idxDateNum]){
+                tasksToAdd = currMonthData[idxDateNum]
+            }
+        } else if (idxDate.getTime() < firstOfCurrMonth.getTime()){
+            // prev month data
+            taskMonth = 'p';
+            if (prevMonthData[idxDateNum]){
+                tasksToAdd = prevMonthData[idxDateNum]
+            }
+        } else {
+            // next month data
+            taskMonth = 'n';
+            if (nextMonthData[idxDateNum]){
+                tasksToAdd = nextMonthData[idxDateNum]
+            }
+        }
+        for (var j = 0; j < 3; j++){
+            taskElements[j] = makeNewCalendarTaskElement(tasksToAdd[j], taskMonth, j);
+        }
+        if (tasksToAdd.length > 4){
+            // add "show more" element
+        } else {
+            taskElements[3] = makeNewCalendarTaskElement(tasksToAdd[3], taskMonth, 3);
+        }
 
         // create day div 
         var day = document.createElement('div');
@@ -155,10 +263,10 @@ function clearCalendar(){
 }
 
 function movePrevMonth(date){
-    if (date){
-        var newDate = date;
+    if (isNaN(date)){
+        var newDate = 1;
     } else {
-        var newDate = 0;
+        var newDate = date;
     }
 
     // get prev month
@@ -179,10 +287,10 @@ function movePrevMonth(date){
 }
 
 function moveNextMonth(date){
-    if (date){
-        var newDate = date;
+    if (isNaN(date)){
+        var newDate = 1;
     } else {
-        var newDate = 0;
+        var newDate = date;
     }
 
     // get prev month
