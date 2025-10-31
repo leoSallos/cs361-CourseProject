@@ -40,6 +40,8 @@ main {
 }
 
 .day-container {
+    display: flex;
+    flex-direction: column;
     border: 1px solid black;
     min-width: 100px;
     min-height: 200px;

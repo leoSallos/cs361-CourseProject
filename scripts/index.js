@@ -118,18 +118,20 @@ function makeNewCalendarTaskElement(data, relMonth, date){
 
     // make the time text
     var timeText = document.createElement("p");
-    switch (data.priority){
-        case 0: 
-            timeText.style.color = "green";
-            break;
-        case 1: 
-            timeText.style.color = "yellow";
-            break;
-        case 2:
-            timeText.style.color = "red";
-            break;
-        default:
-            timeText.style.color = "black";
+    if (data.status != "event"){
+        switch (data.priority){
+            case 0: 
+                timeText.style.color = "green";
+                break;
+            case 1: 
+                timeText.style.color = "yellow";
+                break;
+            case 2:
+                timeText.style.color = "red";
+                break;
+            default:
+                timeText.style.color = "black";
+        }
     }
     var hour = data.start / 60;
     if (hour < 12 && hour > 1){
@@ -142,7 +144,15 @@ function makeNewCalendarTaskElement(data, relMonth, date){
         var tod = "a";
     }
     var min = data.start % 60;
+    if (min < 10) min = "0" + min;
     timeText.textContent = hour + ":" + min + tod;
+    container.appendChild(timeText);
+
+    // make title text
+    var titleText = document.createElement("p");
+    titleText.style.textOverflow = "ellipsis";
+    titleText.textContent = data.name;
+    container.appendChild(titleText);
 
     return container;
 }
@@ -201,13 +211,15 @@ function buildCalendarGrid(date){
                 tasksToAdd = nextMonthData[idxDateNum]
             }
         }
-        for (var j = 0; j < 3; j++){
-            taskElements[j] = makeNewCalendarTaskElement(tasksToAdd[j], taskMonth, j);
-        }
-        if (tasksToAdd.length > 4){
-            // add "show more" element
-        } else {
-            taskElements[3] = makeNewCalendarTaskElement(tasksToAdd[3], taskMonth, 3);
+        if (tasksToAdd.length > 0){
+            for (var j = 0; j < 3 && j < tasksToAdd.length; j++){
+                taskElements[j] = makeNewCalendarTaskElement(tasksToAdd[j], taskMonth, j);
+            }
+            if (tasksToAdd.length > 4){
+                // add "show more" element
+            } else if (tasksToAdd.length == 4){
+                taskElements[3] = makeNewCalendarTaskElement(tasksToAdd[3], taskMonth, 3);
+            }
         }
 
         // create day div 
@@ -229,6 +241,9 @@ function buildCalendarGrid(date){
 
         // append new elements
         day.appendChild(dayNum);
+        for (var j = 0; j < taskElements.length; j++){
+            day.appendChild(taskElements[j]);
+        }
         container.appendChild(day);
 
         // add to day list
