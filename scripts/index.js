@@ -48,6 +48,145 @@ const testCompleteData = {
 currMonthData[16] = [testEventData, testTaskData];
 currMonthData[15] = [testCompleteData];
 
+function convert12hr(hour){
+    if (hour < 12 && hour > 1){
+        var tod = "am";
+    } else if (hour > 12) {
+        hour -= 12;
+        var tod = "pm";
+    } else {
+        hour = 12;
+        var tod = "am";
+    }
+
+    return {hour: hour, tod: tod,};
+}
+
+function makeTaskListElement(data, date){
+    // make button
+    var container = document.createElement("button");
+    container.classList.add("task-list-button");
+    container.addEventListener("click", function(){})
+
+    // make title text
+    var titleText = document.createElement("p");
+    titleText.textContent = data.name;
+    container.appendChild(titleText);
+
+    // make the time box
+    var timeContainer = document.createElement("div");
+    timeContainer.classList.add("task-time-container");
+    var timeText = document.createElement("p");
+    var startHour = convert12hr(Math.floor(data.start / 60));
+    var startMin = data.start % 60;
+    var endHour = convert12hr(Math.floor(data.end / 60));
+    var endMin = data.end % 60;
+    if (startMin < 10) startMin = "0" + startMin;
+    if (endMin < 10) endMin = "0" + endMin;
+    timeText.textContent = startHour.hour + ":" + startMin + startHour.tod +
+        " - " + endHour.hour + ":" + endMin + endHour.tod;
+    timeContainer.appendChild(timeText);
+    container.appendChild(timeContainer);
+
+    // tags
+    if (data.tags.length > 0){
+        var tagText = document.createElement("p");
+        tagText.textContent = data.tags[0];
+        for (var i = 1; i < data.tags.length; i++){
+            tagText.textContent = tagText.textContent + ", " + data.tags[i];
+        }
+        tagText.textContent = tagText.textContent + " |";
+        container.appendChild(tagText);
+    }
+
+    // type indicator circle
+    var circleContainer = document.createElement("svg");
+    circleContainer.setAttribute("height", "10");
+    circleContainer.setAttribute("width", "10");
+    circleContainer.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    circleContainer.setAttribute("xmlns:xlink", "http://www.w3.org/2000/svg");
+    var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    circle.setAttributeNS(null, 'r', 3);
+
+    // type indicator text
+    var indicatorText = document.createElement("p");
+    switch (data.status){
+        case "event":
+            circle.setAttributeNS(null, "style", "fill: black;");
+            indicatorText.textContent = "Event";
+            break;
+        case "task":
+        case "complete":
+            switch (data.priority){
+                case 0:
+                    circle.setAttributeNS(null, "style", "fill: green;");
+                    indicatorText.textContent = "Low Priority";
+                    break;
+                case 1:
+                    circle.setAttributeNS(null, "style", "fill: yellow;");
+                    indicatorText.textContent = "Medium Priority";
+                    break;
+                case 2:
+                    circle.setAttributeNS(null, "style", "fill: red;");
+                    indicatorText.textContent = "High Priority";
+                    break;
+                default:
+                    circle.setAttributeNS(null, "style", "fill: black;");
+                    indicatorText.textContent = "Unknown Priority";
+            }
+            break;
+        default:
+            circle.setAttributeNS(null, "style", "fill: black;");
+            indicatorText.textContent = "Unknown";
+    };
+
+    // task length
+    var taskLengthTotalMins = data.end - data.start;
+    var taskLengthHr = Math.floor(taskLengthTotalMins / 60);
+    var taskLengthMin = taskLengthTotalMins % 60;
+    var taskLength = "";
+    if (taskLengthHr > 0){
+        taskLength = taskLengthHr + "hr ";
+    }
+    taskLength = taskLength + taskLengthMin + "min";
+    indicatorText.textContent = indicatorText.textContent + " (" + taskLength + ") |";
+
+    circleContainer.appendChild(circle);
+    container.appendChild(circleContainer);
+    container.appendChild(indicatorText);
+
+    // location/due date text
+    var locationOrDueText = document.createElement("p");
+    if (data.status == "event"){
+        locationOrDueText.textContent = data.location;
+    } else {
+        var dueDate = "Due ";
+        var dueDateDate = new Date(data.due.year, data.due.month, data.due.day);
+        var timeDiffMS = absToday.getTime() - dueDateDate.getTime();
+        var timeDiff = Math.floor(timeDiffMS / 1000 / 60 / 60 / 24);
+        if (timeDiff < 8 && timeDiff > 0){
+            dueDate = dueDate + weekdays[timeDiff];
+        } else if (timeDiff == 0){
+            dueDate = dueDate + "Today";
+        } else {
+            if (data.due.year == absToday.getFullYear()){
+                dueDate = dueDate + months[data.due.month] + " " + data.due.day;
+            } else {
+                dueDate = dueDate + months[data.due.month] + " " + data.due.day + ", " + data.due.year;
+            }
+        }
+        locationOrDueText.textContent = dueDate;
+    }
+    container.appendChild(locationOrDueText);
+
+    // task button
+    var taskButton = document.createElement("button");
+    taskButton.classList.add("task-completion-button");
+    container.addEventListener("click", function(){});
+
+    return container;
+}
+
 function buildTaskList(date){
     // set header text
     var header = document.getElementById("task-list-header");
@@ -72,9 +211,28 @@ function buildTaskList(date){
             headerContent = currDay + ", " + currDate + "th";
     };
     header.textContent = headerContent;
+
+    // make task list
+    var container = document.getElementsByClassName("day-list-container")[0];
+    var tasksToAdd = [];
+    if (currMonthData[currDate - 1]){
+        tasksToAdd = currMonthData[currDate - 1];
+    }
+    for (var i = 0; i < 3 && i < tasksToAdd.length; i++){
+        container.appendChild(makeTaskListElement(tasksToAdd[i], currDate - 1));
+    }
+}
+
+function clearTaskList(){
+    var container = document.getElementsByClassName("day-list-container")[0];
+
+    while (container.hasChildNodes()){
+        container.removeChild(container.firstChild);
+    }
 }
 
 function refreshSelectedDay(){
+    clearTaskList();
     buildTaskList(today);
 }
 
@@ -133,7 +291,7 @@ function makeNewCalendarTaskElement(data, relMonth, date){
                 timeText.style.color = "black";
         }
     }
-    var hour = data.start / 60;
+    var hour = Math.floor(data.start / 60);
     if (hour < 12 && hour > 1){
         var tod = "a";
     } else if (hour > 12) {
@@ -146,12 +304,14 @@ function makeNewCalendarTaskElement(data, relMonth, date){
     var min = data.start % 60;
     if (min < 10) min = "0" + min;
     timeText.textContent = hour + ":" + min + tod;
+    timeText.style.display = "inline";
     container.appendChild(timeText);
 
     // make title text
     var titleText = document.createElement("p");
+    titleText.style.display = "inline";
     titleText.style.textOverflow = "ellipsis";
-    titleText.textContent = data.name;
+    titleText.textContent = " | " + data.name;
     container.appendChild(titleText);
 
     return container;
@@ -188,7 +348,7 @@ function buildCalendarGrid(date){
         dayNum.addEventListener("click", function(){selectDay(dayID);});
 
         // create event divs
-        const idxDateNum = idxDate.getDate();
+        const idxDateNum = idxDate.getDate() - 1;
         var tasksToAdd = [];
         var taskElements = [];
         var taskMonth = '';
@@ -213,7 +373,7 @@ function buildCalendarGrid(date){
         }
         if (tasksToAdd.length > 0){
             for (var j = 0; j < 3 && j < tasksToAdd.length; j++){
-                taskElements[j] = makeNewCalendarTaskElement(tasksToAdd[j], taskMonth, j);
+                taskElements[j] = makeNewCalendarTaskElement(tasksToAdd[j], taskMonth, idxDateNum);
             }
             if (tasksToAdd.length > 4){
                 // add "show more" element

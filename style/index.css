@@ -55,6 +55,9 @@ main {
     background-color: lightblue;
 }
 
+.task-button {
+    text-align: left;
+}
 
 /* Task List */
 .task-view-container {
@@ -63,6 +66,8 @@ main {
 }
 
 .day-list-container {
+    display: flex;
+    flex-direction: column;
     border: 1px solid black;
 }
 
