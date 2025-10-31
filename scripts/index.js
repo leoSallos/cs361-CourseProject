@@ -161,13 +161,19 @@ function makeTaskListElement(data, date){
         locationOrDueText.textContent = data.location;
     } else {
         var dueDate = "Due ";
+        var topOfToday = new Date(absToday.getFullYear(), absToday.getMonth(), absToday.getDate());
         var dueDateDate = new Date(data.due.year, data.due.month, data.due.day);
-        var timeDiffMS = absToday.getTime() - dueDateDate.getTime();
+        var timeDiffMS = dueDateDate.getTime() - topOfToday.getTime();
         var timeDiff = Math.floor(timeDiffMS / 1000 / 60 / 60 / 24);
-        if (timeDiff < 8 && timeDiff > 0){
-            dueDate = dueDate + weekdays[timeDiff];
+        console.log(timeDiff);
+        if (timeDiff < 8 && timeDiff > 1){
+            dueDate = dueDate + weekdays[topOfToday.getDay() + timeDiff % 7];
+        } else if (timeDiff == 1){
+            dueDate = dueDate + "Tomorrow";
         } else if (timeDiff == 0){
             dueDate = dueDate + "Today";
+        } else if (timeDiff == -1){
+            dueDate = dueDate + "Yesterday";
         } else {
             if (data.due.year == absToday.getFullYear()){
                 dueDate = dueDate + months[data.due.month] + " " + data.due.day;
