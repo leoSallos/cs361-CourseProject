@@ -63,6 +63,9 @@ function convert12hr(hour){
 }
 
 function makeTaskListElement(data, date){
+    var bigContainer = document.createElement("div");
+    bigContainer.classList.add("task-list-container");
+
     // make button
     var container = document.createElement("button");
     container.classList.add("task-list-button");
@@ -165,7 +168,6 @@ function makeTaskListElement(data, date){
         var dueDateDate = new Date(data.due.year, data.due.month, data.due.day);
         var timeDiffMS = dueDateDate.getTime() - topOfToday.getTime();
         var timeDiff = Math.floor(timeDiffMS / 1000 / 60 / 60 / 24);
-        console.log(timeDiff);
         if (timeDiff < 8 && timeDiff > 1){
             dueDate = dueDate + weekdays[topOfToday.getDay() + timeDiff % 7];
         } else if (timeDiff == 1){
@@ -185,12 +187,24 @@ function makeTaskListElement(data, date){
     }
     container.appendChild(locationOrDueText);
 
-    // task button
-    var taskButton = document.createElement("button");
-    taskButton.classList.add("task-completion-button");
-    container.addEventListener("click", function(){});
+    // append button to div
+    bigContainer.appendChild(container);
 
-    return container;
+    // task button
+    if (data.status != "event"){
+        var taskButton = document.createElement("button");
+        taskButton.classList.add("task-completion-button");
+        taskButton.addEventListener("click", function(){});
+
+        if (data.status == "task"){
+            taskButton.textContent = "Finish Task";
+        } else {
+            taskButton.textContent = "Reopen Task";
+        }
+        bigContainer.appendChild(taskButton);
+    }
+
+    return bigContainer;
 }
 
 function buildTaskList(date){
@@ -362,19 +376,31 @@ function buildCalendarGrid(date){
             // curr month data
             taskMonth = 'c';
             if (currMonthData[idxDateNum]){
-                tasksToAdd = currMonthData[idxDateNum]
+                for (var j = 0; j < currMonthData[idxDateNum].length; j++){
+                    if (currMonthData[idxDateNum][j].status != "complete"){
+                        tasksToAdd.push(currMonthData[idxDateNum][j]);
+                    }
+                }
             }
         } else if (idxDate.getTime() < firstOfCurrMonth.getTime()){
             // prev month data
             taskMonth = 'p';
             if (prevMonthData[idxDateNum]){
-                tasksToAdd = prevMonthData[idxDateNum]
+                for (var j = 0; j < prevMonthData[idxDateNum].length; j++){
+                    if (prevMonthData[idxDateNum][j].status != "complete"){
+                        tasksToAdd.push(prevMonthData[idxDateNum][j]);
+                    }
+                }
             }
         } else {
             // next month data
             taskMonth = 'n';
             if (nextMonthData[idxDateNum]){
-                tasksToAdd = nextMonthData[idxDateNum]
+                for (var j = 0; j < nextMonthData[idxDateNum].length; j++){
+                    if (nextMonthData[idxDateNum][j].status != "complete"){
+                        tasksToAdd.push(nextMonthData[idxDateNum][j]);
+                    }
+                }
             }
         }
         if (tasksToAdd.length > 0){
