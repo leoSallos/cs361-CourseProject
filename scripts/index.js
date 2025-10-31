@@ -62,46 +62,31 @@ function convert12hr(hour){
     return {hour: hour, tod: tod,};
 }
 
-function makeTaskListElement(data, date){
-    var bigContainer = document.createElement("div");
-    bigContainer.classList.add("task-list-container");
-
-    // make button
-    var container = document.createElement("button");
-    container.classList.add("task-list-button");
-    container.addEventListener("click", function(){})
-
-    // make title text
-    var titleText = document.createElement("p");
-    titleText.textContent = data.name;
-    container.appendChild(titleText);
-
-    // make the time box
+function makeTimeContainer(data){
+    // make elements
     var timeContainer = document.createElement("div");
     timeContainer.classList.add("task-time-container");
     var timeText = document.createElement("p");
+
+    // get start time
     var startHour = convert12hr(Math.floor(data.start / 60));
     var startMin = data.start % 60;
+    if (startMin < 10) startMin = "0" + startMin;
+
+    // get end time
     var endHour = convert12hr(Math.floor(data.end / 60));
     var endMin = data.end % 60;
-    if (startMin < 10) startMin = "0" + startMin;
     if (endMin < 10) endMin = "0" + endMin;
+
+    // write text content
     timeText.textContent = startHour.hour + ":" + startMin + startHour.tod +
         " - " + endHour.hour + ":" + endMin + endHour.tod;
     timeContainer.appendChild(timeText);
-    container.appendChild(timeContainer);
 
-    // tags
-    if (data.tags.length > 0){
-        var tagText = document.createElement("p");
-        tagText.textContent = data.tags[0];
-        for (var i = 1; i < data.tags.length; i++){
-            tagText.textContent = tagText.textContent + ", " + data.tags[i];
-        }
-        tagText.textContent = tagText.textContent + " |";
-        container.appendChild(tagText);
-    }
+    return timeContainer;
+}
 
+function makeTaskIndicator(data){
     // type indicator circle
     var circleContainer = document.createElement("svg");
     circleContainer.setAttribute("height", "10");
@@ -149,16 +134,20 @@ function makeTaskListElement(data, date){
     var taskLengthMin = taskLengthTotalMins % 60;
     var taskLength = "";
     if (taskLengthHr > 0){
-        taskLength = taskLengthHr + "hr ";
+        taskLength = taskLengthHr + "hr";
+        if (taskLengthMin > 0) taskLength = taskLength + " ";
     }
-    taskLength = taskLength + taskLengthMin + "min";
+    if (taskLengthMin > 0){
+        taskLength = taskLength + taskLengthMin + "min";
+    }
     indicatorText.textContent = indicatorText.textContent + " (" + taskLength + ") |";
 
     circleContainer.appendChild(circle);
-    container.appendChild(circleContainer);
-    container.appendChild(indicatorText);
+    
+    return [circleContainer, indicatorText];
+}
 
-    // location/due date text
+function makeLocationOrDueText(data){
     var locationOrDueText = document.createElement("p");
     if (data.status == "event"){
         locationOrDueText.textContent = data.location;
@@ -185,7 +174,45 @@ function makeTaskListElement(data, date){
         }
         locationOrDueText.textContent = dueDate;
     }
-    container.appendChild(locationOrDueText);
+
+    return locationOrDueText;
+}
+
+function makeTaskListElement(data, date){
+    var bigContainer = document.createElement("div");
+    bigContainer.classList.add("task-list-container");
+
+    // make button
+    var container = document.createElement("button");
+    container.classList.add("task-list-button");
+    container.addEventListener("click", function(){})
+
+    // make title text
+    var titleText = document.createElement("p");
+    titleText.textContent = data.name;
+    container.appendChild(titleText);
+
+    // make the time box
+    container.appendChild(makeTimeContainer(data));
+
+    // tags
+    if (data.tags.length > 0){
+        var tagText = document.createElement("p");
+        tagText.textContent = data.tags[0];
+        for (var i = 1; i < data.tags.length; i++){
+            tagText.textContent = tagText.textContent + ", " + data.tags[i];
+        }
+        tagText.textContent = tagText.textContent + " |";
+        container.appendChild(tagText);
+    }
+
+    // make task indicator
+    var indicator = makeTaskIndicator(data);
+    container.appendChild(indicator[0]);
+    container.appendChild(indicator[1]);
+
+    // location/due date text
+    container.appendChild(makeLocationOrDueText(data));
 
     // append button to div
     bigContainer.appendChild(container);
@@ -337,6 +364,56 @@ function makeNewCalendarTaskElement(data, relMonth, date){
     return container;
 }
 
+function createEventDivs(idxDate, currMonth){
+    const idxDateNum = idxDate.getDate() - 1;
+    var tasksToAdd = [];
+    var taskElements = [];
+    var taskMonth = '';
+    if (currMonth == idxDate.getMonth()){
+        // curr month data
+        taskMonth = 'c';
+        if (currMonthData[idxDateNum]){
+            for (var j = 0; j < currMonthData[idxDateNum].length; j++){
+                if (currMonthData[idxDateNum][j].status != "complete"){
+                    tasksToAdd.push(currMonthData[idxDateNum][j]);
+                }
+            }
+        }
+    } else if (idxDate.getTime() < firstOfCurrMonth.getTime()){
+        // prev month data
+        taskMonth = 'p';
+        if (prevMonthData[idxDateNum]){
+            for (var j = 0; j < prevMonthData[idxDateNum].length; j++){
+                if (prevMonthData[idxDateNum][j].status != "complete"){
+                    tasksToAdd.push(prevMonthData[idxDateNum][j]);
+                }
+            }
+        }
+    } else {
+        // next month data
+        taskMonth = 'n';
+        if (nextMonthData[idxDateNum]){
+            for (var j = 0; j < nextMonthData[idxDateNum].length; j++){
+                if (nextMonthData[idxDateNum][j].status != "complete"){
+                    tasksToAdd.push(nextMonthData[idxDateNum][j]);
+                }
+            }
+        }
+    }
+    if (tasksToAdd.length > 0){
+        for (var j = 0; j < 3 && j < tasksToAdd.length; j++){
+            taskElements[j] = makeNewCalendarTaskElement(tasksToAdd[j], taskMonth, idxDateNum);
+        }
+        if (tasksToAdd.length > 4){
+            // add "show more" element
+        } else if (tasksToAdd.length == 4){
+            taskElements[3] = makeNewCalendarTaskElement(tasksToAdd[3], taskMonth, 3);
+        }
+    }
+
+    return taskElements;
+}
+
 function buildCalendarGrid(date){
     // get container
     var container = document.getElementById("page-calendar");
@@ -368,51 +445,7 @@ function buildCalendarGrid(date){
         dayNum.addEventListener("click", function(){selectDay(dayID);});
 
         // create event divs
-        const idxDateNum = idxDate.getDate() - 1;
-        var tasksToAdd = [];
-        var taskElements = [];
-        var taskMonth = '';
-        if (currMonth == idxMon){
-            // curr month data
-            taskMonth = 'c';
-            if (currMonthData[idxDateNum]){
-                for (var j = 0; j < currMonthData[idxDateNum].length; j++){
-                    if (currMonthData[idxDateNum][j].status != "complete"){
-                        tasksToAdd.push(currMonthData[idxDateNum][j]);
-                    }
-                }
-            }
-        } else if (idxDate.getTime() < firstOfCurrMonth.getTime()){
-            // prev month data
-            taskMonth = 'p';
-            if (prevMonthData[idxDateNum]){
-                for (var j = 0; j < prevMonthData[idxDateNum].length; j++){
-                    if (prevMonthData[idxDateNum][j].status != "complete"){
-                        tasksToAdd.push(prevMonthData[idxDateNum][j]);
-                    }
-                }
-            }
-        } else {
-            // next month data
-            taskMonth = 'n';
-            if (nextMonthData[idxDateNum]){
-                for (var j = 0; j < nextMonthData[idxDateNum].length; j++){
-                    if (nextMonthData[idxDateNum][j].status != "complete"){
-                        tasksToAdd.push(nextMonthData[idxDateNum][j]);
-                    }
-                }
-            }
-        }
-        if (tasksToAdd.length > 0){
-            for (var j = 0; j < 3 && j < tasksToAdd.length; j++){
-                taskElements[j] = makeNewCalendarTaskElement(tasksToAdd[j], taskMonth, idxDateNum);
-            }
-            if (tasksToAdd.length > 4){
-                // add "show more" element
-            } else if (tasksToAdd.length == 4){
-                taskElements[3] = makeNewCalendarTaskElement(tasksToAdd[3], taskMonth, 3);
-            }
-        }
+        var taskElements = createEventDivs(idxDate, currMonth);
 
         // create day div 
         var day = document.createElement('div');
