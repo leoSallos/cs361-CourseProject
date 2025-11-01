@@ -74,7 +74,10 @@ pub fn main() !void {
 
         // make response
         if (mem.eql(u8, "GET", method)){
-            respondGet(writer, path) catch continue;
+            respondGet(writer, path) catch {
+                log.err("Response failed", .{});
+                continue;
+            };
 
         } else if (mem.eql(u8, "POST", method)){
             // TODO: database functionality
@@ -148,7 +151,6 @@ fn respondGet(writer: *std.Io.Writer, path: []const u8) !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     const allocator = gpa.allocator();
     const contentType = getContentType(path);
-    log.debug("{s}", .{contentType});
     var filePath: []u8 = undefined;
     if (mem.eql(u8, contentType, "text/html")){
         filePath = try mem.concat(allocator, u8, &[_][]const u8{"/pages", path});
