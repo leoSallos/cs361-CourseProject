@@ -16,11 +16,16 @@ about in your week.
 - [x] Server accepts POST requests
 - [x] Welcome popup
 - [ ] Add task/event popup
-    - [ ] visual block with open/close
+    - [x] visual block
+    - [ ] open/close
     - [ ] functional creation of new events (not tasks yet)
-    - [ ] functional editing of events/tasks
 - **Saturday**
-- [ ] User schedual preferences
+- [ ] Edit tast/event popup
+    - [ ] visual block
+    - [ ] open/close
+    - [ ] edit data
+- [ ] Settings Page
+- [ ] User schedule preferences
     - [ ] functional task creation
 - [ ] Database connection with server
     - [ ] sync user preferences

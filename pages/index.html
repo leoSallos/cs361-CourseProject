@@ -52,10 +52,77 @@
                 </div>
             </div>
 
-            <div id="task-popup-container" class="popup-container hidden">
+            <div class="popup-container-wrapper hidden">
+                <div id="add-event-popup-container" class="popup-container">
+                    <button class="close-button">X</button>
+                    <h1 class="popup-title">Add Event</h1>
+                    <div class="popup-input-container">
+                        <label for="name">Name</label>
+                        <input id="add-event-name" type="text" name="name" placeholder="Click to Type">
+                        <br><br>
+                        <label for="date">Date</label>
+                        <input id="add-event-date" type="date" name="date">
+                        <br><br>
+                        <label for="time">Time</label>
+                        <input id="add-event-time-start" type="time" name="time"> -
+                        <input id="add-event-time-end" type="time" name="time">
+                        <br><br>
+                        <label for="tags">Tags</label>
+                        <select id="add-event-tags" name="tags" multiple>
+                        </select>
+                        <br><br>
+                        <label for="location">Location</label>
+                        <input id="add-event-location" type="text" name="location" placeholder="Click to Type">
+                    </div>
+                    <div class="popup-bottom-buttons">
+                        <button class="popup-cancel-button">Cancel</button>
+                        <button class="popup-submit-button">Submit</button>
+                    </div>
+                </div>
             </div>
 
-            <div id="event-popup-container" class="popup-container hidden">
+            <div class="popup-container-wrapper hidden">
+                <div id="add-task-popup-container" class="popup-container">
+                    <button class="close-button">X</button>
+                    <h1 class="popup-title">Add Task</h1>
+                    <div class="popup-input-container">
+                        <label for="name">Name</label>
+                        <input id="add-task-name" type="text" name="name" placeholder="Click to Type">
+                        <br><br>
+                        <label for="date">Due Date</label>
+                        <input id="add-task-due-date" type="date" name="date">
+                        <br><br>
+                        <label for="tags">Tags</label>
+                        <select id="add-task-tags" name="tags" multiple>
+                        </select>
+                        <br><br>
+                        <label for="priority">Priority</label>
+                        <select id="add-task-tags" name="priority">
+                            <option value="" disabled selected></option>
+                            <option value="Low">Low</option>
+                            <option value="Medium">Medium</option>
+                            <option value="High">High</option>
+                        </select>
+                        <br>
+                        <label>
+                            <input id="add-task-increase-priority" type="checkbox">Increase priority close to due date.</label>
+                        <br><br>
+                    </div>
+                    <div class="popup-bottom-buttons">
+                        <button class="popup-cancel-button">Cancel</button>
+                        <button class="popup-submit-button">Submit</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="popup-container-wrapper hidden">
+                <div id="edit-event-popup-container" class="popup-container">
+                </div>
+            </div>
+
+            <div class="popup-container-wrapper hidden">
+                <div id="edit-task-popup-container" class="popup-container">
+                </div>
             </div>
 
             <div class="calendar-container">
