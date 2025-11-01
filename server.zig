@@ -74,9 +74,12 @@ pub fn main() !void {
 
         // make response
         if (mem.eql(u8, "GET", method)){
-            respondGet(writer, path) catch {
-                log.err("Response failed", .{});
-                continue;
+            respondGet(writer, path) catch |err| switch (err){
+                error.FileNotFound => {},
+                else => {
+                    log.err("Response failed", .{});
+                    continue;
+                },
             };
 
         } else if (mem.eql(u8, "POST", method)){
@@ -189,7 +192,7 @@ fn readFile(path: []const u8, allocator: mem.Allocator) ![]u8 {
     const localPath = path[1..];
     const file = fs.cwd().openFile(localPath, .{}) catch |err| switch (err){
         error.FileNotFound => {
-            log.err("File not found: {s}\n", .{localPath});
+            log.err("File not found: {s}", .{localPath});
             return err;
         },
         else => return err,
