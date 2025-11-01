@@ -30,8 +30,8 @@
             <div id="confirm-popup" class="popup-container hidden">
             </div>
 
-            <div class="popup-container-wrapper">
-                <div id="welcome-popup-container" class="popup-container">
+            <div id="welcome-popup-container" class="popup-container-wrapper">
+                <div class="popup-container">
                     <button class="close-button">X</button>
                     <h1 class="popup-title">Welcome to Auto Planner</h1>
                     <p class="welcome-text">
@@ -52,8 +52,8 @@
                 </div>
             </div>
 
-            <div class="popup-container-wrapper hidden">
-                <div id="add-event-popup-container" class="popup-container">
+            <div id="add-event-popup-container" class="popup-container-wrapper hidden">
+                <div class="popup-container">
                     <button class="close-button">X</button>
                     <h1 class="popup-title">Add Event</h1>
                     <div class="popup-input-container">
@@ -81,8 +81,8 @@
                 </div>
             </div>
 
-            <div class="popup-container-wrapper hidden">
-                <div id="add-task-popup-container" class="popup-container">
+            <div id="add-task-popup-container" class="popup-container-wrapper hidden">
+                <div class="popup-container">
                     <button class="close-button">X</button>
                     <h1 class="popup-title">Add Task</h1>
                     <div class="popup-input-container">
@@ -115,13 +115,23 @@
                 </div>
             </div>
 
-            <div class="popup-container-wrapper hidden">
-                <div id="edit-event-popup-container" class="popup-container">
+            <div id="edit-event-popup-container" class="popup-container-wrapper hidden">
+                <div class="popup-container">
+                    <button class="close-button">X</button>
+                    <h1 class="popup-title">Edit Event</h1>
+                    <div class="popup-bottom-buttons">
+                        <button class="popup-cancel-button">Cancel</button>
+                    </div>
                 </div>
             </div>
 
-            <div class="popup-container-wrapper hidden">
-                <div id="edit-task-popup-container" class="popup-container">
+            <div id="edit-task-popup-container" class="popup-container-wrapper hidden">
+                <div class="popup-container">
+                    <button class="close-button">X</button>
+                    <h1 class="popup-title">Edit Task</h1>
+                    <div class="popup-bottom-buttons">
+                        <button class="popup-cancel-button">Cancel</button>
+                    </div>
                 </div>
             </div>
 
@@ -133,8 +143,8 @@
                         <button id="nav-calendar-forward" class="nav-calendar-button">&rarr;</button>
                     </div>
                     <div class="add-entry-container">
-                        <button id="add-event-button" class="add-entry-button">Add Event</button>
-                        <button id="add-task-button" class="add-entry-button">Add Task</button>
+                        <button id="add-event-button" class="add-entry-button" onclick="openPopup('add-event');">Add Event</button>
+                        <button id="add-task-button" class="add-entry-button" onclick="openPopup('add-task');">Add Task</button>
                     </div>
                 </div>
                 <div id="page-calendar" class="calendar-grid-container">

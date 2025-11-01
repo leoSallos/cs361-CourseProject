@@ -185,7 +185,6 @@ function makeTaskListElement(data, date){
     // make button
     var container = document.createElement("button");
     container.classList.add("task-list-button");
-    container.addEventListener("click", function(){})
 
     // make title text
     var titleText = document.createElement("p");
@@ -219,6 +218,7 @@ function makeTaskListElement(data, date){
 
     // task button
     if (data.status != "event"){
+        container.addEventListener("click", function(){openPopup("edit-task", data)});
         var taskButton = document.createElement("button");
         taskButton.classList.add("task-completion-button");
         taskButton.addEventListener("click", function(){});
@@ -229,6 +229,8 @@ function makeTaskListElement(data, date){
             taskButton.textContent = "Reopen Task";
         }
         bigContainer.appendChild(taskButton);
+    } else {
+        container.addEventListener("click", function(){openPopup("edit-event", data)});
     }
 
     return bigContainer;
@@ -319,11 +321,11 @@ function makeNewCalendarTaskElement(data, relMonth, date){
     // make button
     var container = document.createElement("button");
     container.classList.add("task-button");
-    container.addEventListener("click", function(){})
 
     // make the time text
     var timeText = document.createElement("p");
     if (data.status != "event"){
+        container.addEventListener("click", function(){openPopup("edit-task", data)});
         switch (data.priority){
             case 0: 
                 timeText.style.color = "green";
@@ -337,6 +339,8 @@ function makeNewCalendarTaskElement(data, relMonth, date){
             default:
                 timeText.style.color = "black";
         }
+    } else {
+        container.addEventListener("click", function(){openPopup("edit-event", data)});
     }
     var hour = Math.floor(data.start / 60);
     if (hour < 12 && hour > 1){
@@ -554,6 +558,15 @@ function closePopup(){
     var wrappers = document.getElementsByClassName("popup-container-wrapper");
     for (var i = 0; i < wrappers.length; i++){
         wrappers[i].classList.add("hidden");
+    }
+}
+
+function openPopup(popupName, data){
+    var container = document.getElementById(popupName + "-popup-container");
+    container.classList.remove("hidden");
+
+    if (data){
+        // fill data into inputs
     }
 }
 

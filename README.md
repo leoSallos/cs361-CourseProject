@@ -17,12 +17,12 @@ about in your week.
 - [x] Welcome popup
 - [ ] Add task/event popup
     - [x] visual block
-    - [ ] open/close
+    - [x] open/close
     - [ ] functional creation of new events (not tasks yet)
 - **Saturday**
 - [ ] Edit tast/event popup
     - [ ] visual block
-    - [ ] open/close
+    - [x] open/close
     - [ ] edit data
 - [ ] Settings Page
 - [ ] User schedule preferences
