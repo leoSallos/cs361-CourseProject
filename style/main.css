@@ -7,11 +7,13 @@ main {
 .calendar-container {
     margin: 10px;
     min-width: 65%;
+    max-height: 90vb;
 }
 
 .calendar-header {
     display: flex;
     justify-content:space-between;
+    height: 5vb;
 }
 
 .calendar-navagation-container {
@@ -37,6 +39,8 @@ main {
     display: grid;
     grid-template-columns: repeat(7, auto);
     text-align: center;
+    overflow: scroll;
+    max-height: 85vb;
 }
 
 .day-container {
@@ -63,12 +67,19 @@ main {
 .task-view-container {
     width: 100%;
     margin: 10px;
+    max-height: 90vb;
+}
+
+.task-view-container h1{
+    max-height: 10vd;
 }
 
 .day-list-container {
     display: flex;
     flex-direction: column;
     border: 1px solid black;
+    overflow: scroll;
+    max-height: 80vd;
 }
 
 /* Popups */

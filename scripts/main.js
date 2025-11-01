@@ -550,6 +550,13 @@ function moveNextMonth(date){
     refreshSelectedDay();
 }
 
+function closePopup(){
+    var wrappers = document.getElementsByClassName("popup-container-wrapper");
+    for (var i = 0; i < wrappers.length; i++){
+        wrappers[i].classList.add("hidden");
+    }
+}
+
 function init(){
     buildCalendar(today);
     buildTaskList(today);
@@ -561,6 +568,14 @@ init();
 // button listeners
 var prevMonth = document.getElementById("nav-calendar-back");
 var nextMonth = document.getElementById("nav-calendar-forward");
+var closeButtons = document.getElementsByClassName("close-button");
+var cancelButtons = document.getElementsByClassName("popup-cancel-button");
 
 prevMonth.addEventListener("click", movePrevMonth);
 nextMonth.addEventListener("click", moveNextMonth);
+for (var i = 0; i < closeButtons.length; i++){
+    closeButtons[i].addEventListener("click", closePopup);
+}
+for (var i = 0; i < cancelButtons.length; i++){
+    cancelButtons[i].addEventListener("click", closePopup);
+}

@@ -26,19 +26,38 @@
             </div>
         </header>
 
-        <div id="confirm-popup" class="hidden">
-        </div>
-
-        <div id="welcome-popup-container" class="popup-container hidden">
-        </div>
-
-        <div id="task-popup-container" class="popup-container hidden">
-        </div>
-
-        <div id="event-popup-container" class="popup-container hidden">
-        </div>
-
         <main>
+            <div id="confirm-popup" class="popup-container hidden">
+            </div>
+
+            <div class="popup-container-wrapper">
+                <div id="welcome-popup-container" class="popup-container">
+                    <button class="close-button">X</button>
+                    <h1 class="popup-title">Welcome to Auto Planner</h1>
+                    <p class="welcome-text">
+                    We schedule your homework, chores, and other tasks around your
+                    busy schedule so you don't have to.
+                    </p>
+                    <p class="welcome-text">
+                    Whenever you make a new task, we will automatically select a date
+                    and time to do that task.
+                    </p>
+                    <p class="welcome-text">
+                    If you ever disagree with out decision, don't worry, you can edit
+                    tasks after creating them.
+                    </p>
+                    <div class="popup-bottom-buttons">
+                        <button class="popup-cancel-button">Get Started</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="task-popup-container" class="popup-container hidden">
+            </div>
+
+            <div id="event-popup-container" class="popup-container hidden">
+            </div>
+
             <div class="calendar-container">
                 <div class="calendar-header">
                     <div class="calendar-navagation-container">
@@ -47,8 +66,8 @@
                         <button id="nav-calendar-forward" class="nav-calendar-button">&rarr;</button>
                     </div>
                     <div class="add-entry-container">
-                    <button id="add-event-button" class="add-entry-button">Add Event</button>
-                    <button id="add-task-button" class="add-entry-button">Add Task</button>
+                        <button id="add-event-button" class="add-entry-button">Add Event</button>
+                        <button id="add-task-button" class="add-entry-button">Add Task</button>
                     </div>
                 </div>
                 <div id="page-calendar" class="calendar-grid-container">

@@ -12,9 +12,9 @@ about in your week.
 - [x] Calendar day selection 
 - [x] Load tasks onto calendar
 - [x] Load selected day's tasks onto task list
-- [x] Server accepts POST requests
 - **Friday**
-- [ ] Welcome popup
+- [x] Server accepts POST requests
+- [x] Welcome popup
 - [ ] Add task/event popup
     - [ ] visual block with open/close
     - [ ] functional creation of new events (not tasks yet)
