@@ -48,43 +48,35 @@ pub fn main() !void {
         log.info("Accepted connection", .{});
         defer log.info("Connection Closed\n", .{});
         var recvBuff: [RECV_BUFF_SIZE]u8 = undefined;
-        var recvLen: usize = 0;
-        while (conn.stream.read(recvBuff[recvLen..])) |readLen|{
-            if (readLen == 0) break;
-            recvLen += readLen;
-            if (mem.containsAtLeast(u8, recvBuff[0..recvLen], 1, "\r\n\r\n")) break;
-        } else |_| {
-            log.err("Improper request format", .{});
-            continue;
-        }
-        
-        // check for empty header
-        const recvData = recvBuff[0..recvLen];
-        if (recvData.len == 0){
-            log.err("No header recieved.", .{});
-            continue;
-        }
-        log.debug("{s}", .{recvData});
+        var readWrap = conn.stream.reader(&recvBuff);
+        const reader: *std.Io.Reader = readWrap.interface();
 
         // parse data
-        const header: HTTPHeader = parseHeader(recvData) catch {
+        const header: HTTPHeader = parseHeader(reader) catch {
             log.err("HTTP header", .{});
             continue;
         };
-        const path = parsePath(header.requestLine) catch {
-            log.err("Header parsing", .{});
+        const path = parsePath(header.requestLine) catch |err| {
+            switch (err){
+                error.UnsupportedProtocol => log.err("Unsupported Protocol", .{}),
+                error.UnsupportedMethod => log.err("Unsupported Method", .{}),
+                error.NoPath => log.err("No Path", .{}),
+                else => log.err("Header parsing: {s}", .{header.requestLine}),
+            }
             continue;
         };
+        log.info("Request Line: {s}", .{header.requestLine});
 
         // setup for response
-        var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-        const allocator = gpa.allocator();
         var writeBuffer: [RECV_BUFF_SIZE]u8 = undefined;
         var httpWriter = conn.stream.writer(&writeBuffer);
         const writer: *std.Io.Writer = &httpWriter.interface;
 
         // get data to respond
+        var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+        const allocator = gpa.allocator();
         const contentType = getContentType(path);
+        log.debug("{s}", .{contentType});
         var filePath: []u8 = undefined;
         if (mem.eql(u8, contentType, "text/html")){
             filePath = try mem.concat(allocator, u8, &[_][]const u8{"/pages", path});
@@ -123,18 +115,20 @@ pub fn main() !void {
 }
 
 /// Parses a header into an HTTPHeader struct
-fn parseHeader(data: []const u8) RequestError!HTTPHeader {
+fn parseHeader(reader: *std.Io.Reader) RequestError!HTTPHeader {
     var header = HTTPHeader{
         .requestLine = undefined,
         .host = undefined,
         .userAgent = undefined,
     };
-    
-    var headerItr = mem.tokenizeSequence(u8, data, "\r\n");
 
     // get request line
-    header.requestLine = headerItr.next() orelse return RequestError.HeaderMalformed;
-    while (headerItr.next()) |line| {
+    const rawRequestLine = reader.takeDelimiterExclusive('\n') catch return RequestError.HeaderMalformed; 
+    header.requestLine = rawRequestLine[0..rawRequestLine.len-1];
+    while (reader.takeDelimiterExclusive('\n'))|readLine| {
+        if (mem.eql(u8, "\r", readLine)) break;
+        const line = readLine[0..readLine.len-1];
+
         const nameSlice = mem.sliceTo(line, ':');
         if (nameSlice.len == line.len) return RequestError.HeaderMalformed;
         const headerName = std.meta.stringToEnum(HeaderNames, nameSlice) orelse continue;
@@ -142,6 +136,11 @@ fn parseHeader(data: []const u8) RequestError!HTTPHeader {
         switch (headerName){
             .Host => header.host = headerValue,
             .@"User-Agent" => header.userAgent = headerValue,
+        }
+    } else |err| {
+        switch (err){
+            error.EndOfStream => {},
+            else => return RequestError.HeaderMalformed,
         }
     }
 
