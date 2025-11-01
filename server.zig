@@ -56,7 +56,7 @@ pub fn main() !void {
             log.err("HTTP header", .{});
             continue;
         };
-        const path = parsePath(header.requestLine) catch |err| {
+        const method, const path = parseRequestLine(header.requestLine) catch |err| {
             switch (err){
                 error.UnsupportedProtocol => log.err("Unsupported Protocol", .{}),
                 error.UnsupportedMethod => log.err("Unsupported Method", .{}),
@@ -72,41 +72,14 @@ pub fn main() !void {
         var httpWriter = conn.stream.writer(&writeBuffer);
         const writer: *std.Io.Writer = &httpWriter.interface;
 
-        // get data to respond
-        var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-        const allocator = gpa.allocator();
-        const contentType = getContentType(path);
-        log.debug("{s}", .{contentType});
-        var filePath: []u8 = undefined;
-        if (mem.eql(u8, contentType, "text/html")){
-            filePath = try mem.concat(allocator, u8, &[_][]const u8{"/pages", path});
-        } else {
-            filePath = try mem.concat(allocator, u8, &[_][]const u8{path});
-        }
-        defer allocator.free(filePath);
-        const data = readFile(filePath, allocator) catch |err| {
-            if (err == error.FileNotFound){
-                try writer.writeAll(get404());
-                try writer.flush();
-                continue;
-            } else {
-                log.err("File read error", .{});
-                continue;
-            }
-        };
-        defer allocator.free(data);
+        // make response
+        if (mem.eql(u8, "GET", method)){
+            respondGet(writer, path) catch continue;
 
-        // send response
-        const httpHead = 
-            "HTTP/1.1 200 OK \r\n" ++
-            "Connection: close\r\n" ++
-            "Content-Type: {s}\r\n" ++
-            "Content-Length: {d}\r\n" ++
-            "\r\n"
-            ;
-        try writer.print(httpHead, .{contentType, data.len});
-        try writer.writeAll(data);
-        try writer.flush();
+        } else if (mem.eql(u8, "POST", method)){
+            // TODO: database functionality
+            log.err("No database to post to", .{});
+        }
 
     } else |err| {
         log.err("Accept failed", .{});
@@ -148,12 +121,14 @@ fn parseHeader(reader: *std.Io.Reader) RequestError!HTTPHeader {
 }
 
 /// Parses request line for a data path
-fn parsePath(requestLine: []const u8) RequestError![]const u8 {
+fn parseRequestLine(requestLine: []const u8) RequestError!struct {[]const u8, []const u8} {
     var requestLineItr = mem.tokenizeScalar(u8, requestLine, ' ');
 
     // get method
     const method = requestLineItr.next().?;
-    if (!mem.eql(u8, method, "GET")) return RequestError.UnsupportedMethod;
+    if (!mem.eql(u8, method, "GET") and !mem.eql(u8, method, "POST")){
+        return RequestError.UnsupportedMethod;
+    }
 
     // get path
     var path = requestLineItr.next().?;
@@ -164,7 +139,46 @@ fn parsePath(requestLine: []const u8) RequestError![]const u8 {
     const protocol = requestLineItr.next().?;
     if (!mem.eql(u8, protocol, "HTTP/1.1")) return RequestError.UnsupportedProtocol;
 
-    return path;
+    return .{method, path};
+}
+
+/// Responds to GET request
+fn respondGet(writer: *std.Io.Writer, path: []const u8) !void {
+    // get data to respond
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    const allocator = gpa.allocator();
+    const contentType = getContentType(path);
+    log.debug("{s}", .{contentType});
+    var filePath: []u8 = undefined;
+    if (mem.eql(u8, contentType, "text/html")){
+        filePath = try mem.concat(allocator, u8, &[_][]const u8{"/pages", path});
+    } else {
+        filePath = try mem.concat(allocator, u8, &[_][]const u8{path});
+    }
+    defer allocator.free(filePath);
+    const data = readFile(filePath, allocator) catch |err| {
+        if (err == error.FileNotFound){
+            try writer.writeAll(get404());
+            try writer.flush();
+            return err;
+        } else {
+            log.err("File read error", .{});
+            return err;
+        }
+    };
+    defer allocator.free(data);
+
+    // send response
+    const httpHead = 
+        "HTTP/1.1 200 OK \r\n" ++
+        "Connection: close\r\n" ++
+        "Content-Type: {s}\r\n" ++
+        "Content-Length: {d}\r\n" ++
+        "\r\n"
+        ;
+    try writer.print(httpHead, .{contentType, data.len});
+    try writer.writeAll(data);
+    try writer.flush();
 }
 
 /// Reads file and returns contents of that file
