@@ -14,6 +14,11 @@ var nextMonthData = [];
 const testEventData = {
     name: "test",
     status: "event",
+    date: {
+        year: 2025,
+        month: 9,
+        date: 16,
+    },
     start: 480,
     end: 590,
     tags: ["testing", "Event to Test"],
@@ -22,6 +27,11 @@ const testEventData = {
 const testTaskData = {
     name: "test",
     status: "task",
+    date: {
+        year: 2025,
+        month: 9,
+        date: 16,
+    },
     start: 660,
     end: 690,
     tags: ["testing"],
@@ -35,6 +45,11 @@ const testTaskData = {
 const testCompleteData = {
     name: "testComp",
     status: "complete",
+    date: {
+        year: 2025,
+        month: 9,
+        date: 15,
+    },
     start: 660,
     end: 720,
     tags: ["testing"],
@@ -140,7 +155,7 @@ function makeTaskIndicator(data){
     if (taskLengthMin > 0){
         taskLength = taskLength + taskLengthMin + "min";
     }
-    indicatorText.textContent = indicatorText.textContent + " (" + taskLength + ") |";
+    indicatorText.textContent = indicatorText.textContent + " (" + taskLength + ")";
 
     circleContainer.appendChild(circle);
     
@@ -150,9 +165,9 @@ function makeTaskIndicator(data){
 function makeLocationOrDueText(data){
     var locationOrDueText = document.createElement("p");
     if (data.status == "event"){
-        locationOrDueText.textContent = data.location;
+        locationOrDueText.textContent = " | " + data.location;
     } else {
-        var dueDate = "Due ";
+        var dueDate = " | Due ";
         var topOfToday = new Date(absToday.getFullYear(), absToday.getMonth(), absToday.getDate());
         var dueDateDate = new Date(data.due.year, data.due.month, data.due.day);
         var timeDiffMS = dueDateDate.getTime() - topOfToday.getTime();
@@ -178,7 +193,7 @@ function makeLocationOrDueText(data){
     return locationOrDueText;
 }
 
-function makeTaskListElement(data, date){
+function makeTaskListElement(data, dateIdx){
     var bigContainer = document.createElement("div");
     bigContainer.classList.add("task-list-container");
 
@@ -218,7 +233,7 @@ function makeTaskListElement(data, date){
 
     // task button
     if (data.status != "event"){
-        container.addEventListener("click", function(){openPopup("edit-task", data)});
+        container.addEventListener("click", function(){openPopup("edit-task", data, dateIdx)});
         var taskButton = document.createElement("button");
         taskButton.classList.add("task-completion-button");
         taskButton.addEventListener("click", function(){});
@@ -230,7 +245,7 @@ function makeTaskListElement(data, date){
         }
         bigContainer.appendChild(taskButton);
     } else {
-        container.addEventListener("click", function(){openPopup("edit-event", data)});
+        container.addEventListener("click", function(){openPopup("edit-event", data, dateIdx)});
     }
 
     return bigContainer;
@@ -325,7 +340,7 @@ function makeNewCalendarTaskElement(data, relMonth, date){
     // make the time text
     var timeText = document.createElement("p");
     if (data.status != "event"){
-        container.addEventListener("click", function(){openPopup("edit-task", data)});
+        container.addEventListener("click", function(){openPopup("edit-task", data, date, relMonth)});
         switch (data.priority){
             case 0: 
                 timeText.style.color = "green";
@@ -340,7 +355,7 @@ function makeNewCalendarTaskElement(data, relMonth, date){
                 timeText.style.color = "black";
         }
     } else {
-        container.addEventListener("click", function(){openPopup("edit-event", data)});
+        container.addEventListener("click", function(){openPopup("edit-event", data, date, relMonth)});
     }
     var hour = Math.floor(data.start / 60);
     if (hour < 12 && hour > 1){
@@ -411,7 +426,7 @@ function createEventDivs(idxDate, currMonth){
         if (tasksToAdd.length > 4){
             // add "show more" element
         } else if (tasksToAdd.length == 4){
-            taskElements[3] = makeNewCalendarTaskElement(tasksToAdd[3], taskMonth, 3);
+            taskElements[3] = makeNewCalendarTaskElement(tasksToAdd[3], taskMonth, idxDateNum);
         }
     }
 
@@ -554,20 +569,172 @@ function moveNextMonth(date){
     refreshSelectedDay();
 }
 
+function removeErrorTexts(){
+    var errorTexts = document.getElementsByClassName("popup-error-text");
+    while (errorTexts.length > 0){
+        errorTexts[0].remove();
+    }
+}
+
 function closePopup(){
+    // hide all popups
     var wrappers = document.getElementsByClassName("popup-container-wrapper");
     for (var i = 0; i < wrappers.length; i++){
         wrappers[i].classList.add("hidden");
     }
+
+    // clear all inputs
+    var inputs = document.querySelectorAll(".popup-input-container input");
+    for (var i = 0; i < inputs.length; i++){
+        inputs[i].value = "";
+    }
+
+    // clear all selectors
+    var selectors = document.querySelectorAll(".popup-input-container select");
+    for (var i = 0; i < selectors.length; i++){
+        selectors[i].value = "";
+    }
+    
+    // remove error texts
+    removeErrorTexts();
 }
 
-function openPopup(popupName, data){
+function openPopup(popupName, data, date, relMonth){
     var container = document.getElementById(popupName + "-popup-container");
     container.classList.remove("hidden");
 
     if (data){
-        // fill data into inputs
+        // fill data into inputs, and identifier
     }
+}
+
+function makeErrorMessage(element, message){
+    const errorMessage = document.createElement("p");
+    errorMessage.classList.add("popup-error-text");
+    errorMessage.textContent = message;
+    element.parentNode.insertBefore(errorMessage, element);
+}
+
+function getEventPopupData(containerAction){
+    var failed = false;
+    var data = {
+        name: "",
+        status: "event",
+        date: {
+            year: "",
+            month: "",
+            date: "",
+        },
+        start: "",
+        end: "",
+        tags: [],
+        location: "",
+    };
+
+    // status
+    data.status = "event";
+
+    // name
+    var nameElement = document.getElementById(containerAction + "-event-name");
+    data.name = nameElement.value;
+    if (!data.name || data.name == ""){
+        makeErrorMessage(nameElement, "Must add a name");
+        failed = true;
+    }
+
+    // date
+    var dateElement = document.getElementById(containerAction + "-event-date");
+    var dateString = dateElement.value;
+    if (!dateString || dateString == ""){
+        makeErrorMessage(dateElement, "Must add a date.");
+        failed = true;
+    } else {
+        var dateData = dateString.split('-');
+        data.date.year = dateData[0];
+        data.date.month = dateData[1] - 1;
+        data.date.date = dateData[2] - 1;
+    }
+
+    // start
+    var startElement = document.getElementById(containerAction + "-event-time-start");
+    var startString = startElement.value;
+    if (!startString || startString == ""){
+        makeErrorMessage(startElement, "Must enter a start time.");
+        failed = true;
+    } else {
+        var startData = startString.split(':');
+        data.start = startData[0] * 60;
+        data.start += startData[1] * 1;
+    }
+
+    // end
+    var endElement = document.getElementById(containerAction + "-event-time-end");
+    var endString = endElement.value;
+    if (!endString || endString == ""){
+        makeErrorMessage(startElement, "Must enter an end time.");
+        failed = true;
+    } else {
+        var endData = endString.split(':');
+        data.end = endData[0] * 60;
+        data.end += endData[1] * 1;
+    }
+
+    // start-end error checking
+    if (data.end < data.start){
+        makeErrorMessage(startElement, "End time must be after the start time.");
+        failed = true;
+    }
+
+    // tags
+    var tagElement = document.getElementById(containerAction + "-event-tags");
+    for (var i = 0; i < tagElement.selectedOptions.length; i++){
+        data.tags.push(tagElement.selectedOptions[i].value);
+    }
+
+    // location
+    var locationElement = document.getElementById(containerAction + "-event-location");
+    data.location = locationElement.value;
+    if (!data.location){
+        data.location = "";
+    }
+
+    if (failed){
+        return undefined;
+    }
+    return data;
+}
+
+function submitData(submitType){
+    removeErrorTexts();
+
+    var idx = {day: -1, month: ""};
+
+    // get data
+    if (submitType.type == "event"){
+        var data = getEventPopupData(submitType.action);
+        if (!data) return;
+        idx.day = data.day;
+        idx.month = data.month;
+        if (submitType.action == "edit"){
+            // remove previous entry
+        }
+        // post data entry
+    } else if (submitType.type == "task") {
+        if (submitType.action == "edit"){
+            // remove previous entry
+        }
+        // post data entry
+    }
+
+    // post to server
+    if (idx.day >= 0){
+    }
+
+    // update calendar
+    init();
+
+    // close popup after submit
+    closePopup();
 }
 
 function init(){
