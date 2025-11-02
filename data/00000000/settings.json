@@ -1,11 +1,11 @@
 {
-    tags: [],
-    timeslots: {
-        unavailable: [],
-        notPreferable: [],
-        flexable: [],
+    "tags": [],
+    "timeslots": {
+        "unavailable": [],
+        "notPreferable": [],
+        "flexable": []
     },
-    clock: "12hr",
-    weekStart: "sunday",
-    theme: "light",
+    "clock": "12hr",
+    "weekStart": "sunday",
+    "theme": "light"
 }
