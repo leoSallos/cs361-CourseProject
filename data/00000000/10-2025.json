@@ -12,7 +12,9 @@
                 "start": 480,
                 "end": 590,
                 "tags": ["testing", "Event to Test"],
-                "location": "Dearborn Hall"
+                "priority": 0,
+                "location": "Dearborn Hall",
+                "due": {}
             }
         ],
         [],
@@ -30,6 +32,7 @@
                 "end": 690,
                 "tags": ["testing"],
                 "priority": 1,
+                "location": "",
                 "due": {
                     "year": 2025,
                     "month": 10,
@@ -48,6 +51,7 @@
                 "end": 720,
                 "tags": ["testing"],
                 "priority": 2,
+                "location": "",
                 "due": {
                     "year": 2025,
                     "month": 10,

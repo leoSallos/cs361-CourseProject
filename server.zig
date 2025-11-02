@@ -88,7 +88,8 @@ pub fn main() !void {
             };
 
         } else if (mem.eql(u8, "POST", method)){
-            // TODO: database functionality
+            // TODO, add catch statement
+            try handlePost(reader, writer, path);
             log.err("No database to post to", .{});
         }
 
@@ -194,6 +195,61 @@ fn respondGet(writer: *std.Io.Writer, path: []const u8) !void {
         ;
     try writer.print(httpHead, .{contentType, data.len});
     try writer.writeAll(data);
+    try writer.flush();
+}
+
+const EventDate = struct {
+    year: u16,
+    month: u8,
+    date: u8,
+};
+
+const EventPost = struct {
+    name: []u8,
+    status: []u8,
+    date: EventDate,
+    start: u16,
+    end: u16,
+    tags: [][]u8,
+    priority: u8,
+    location: []u8,
+    due: EventDate,
+};
+
+const EventFile = struct {
+    date: []EventFile,
+};
+
+/// Handles and responds to POST request
+fn handlePost(reader: *std.Io.Reader, writer: *std.Io.Writer, path: []const u8) !void {
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    const allocator = gpa.allocator();
+
+    // retrieve data
+    const data = try reader.allocRemaining(allocator, std.Io.Limit.limited(std.math.maxInt(usize)));
+    defer allocator.free(data);
+
+    // convert request to JSON
+    const parsedData = try std.json.parseFromSlice(EventPost, allocator, data, .{});
+    defer parsedData.deinit();
+
+    // get destination file data
+    const halfDataPath = try mem.concat(allocator, u8, &[_][]const u8{"/data", path});
+    const dataPath = try mem.concat(allocator, u8, &[_][]const u8{halfDataPath, });
+    const fileData = readFile(dataPath, allocator) catch |err| switch (err){
+        else => return err,
+    };
+    allocator.free(halfDataPath);
+    allocator.free(dataPath);
+    defer allocator.free(fileData);
+
+    // send response
+    const httpHead = 
+        "HTTP/1.1 200 OK \r\n" ++
+        "Connection: close\r\n" ++
+        "\r\n"
+        ;
+    try writer.writeAll(httpHead);
     try writer.flush();
 }
 
