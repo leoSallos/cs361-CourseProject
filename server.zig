@@ -170,7 +170,11 @@ fn respondGet(writer: *std.Io.Writer, path: []const u8) !void {
     defer allocator.free(filePath);
     const data = readFile(filePath, allocator) catch |err| {
         if (err == error.FileNotFound){
-            try writer.writeAll(get404());
+            if (mem.eql(u8, contentType, "application/json")){
+                try writer.writeAll(get204());
+            } else {
+                try writer.writeAll(get404());
+            }
             try writer.flush();
             return err;
         } else {
@@ -230,5 +234,13 @@ fn get404() []const u8 {
         "Content-Length: 23\r\n" ++
         "\r\n" ++
         "<h1>Page Not Found</h1>"
+        ;
+}
+
+/// Returns the 204 no content response
+fn get204() []const u8 {
+    return "HTTP/1.1 204 NO CONTENT\r\n" ++
+        "Connection: close\r\n" ++
+        "\r\n"
         ;
 }

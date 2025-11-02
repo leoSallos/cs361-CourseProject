@@ -468,7 +468,7 @@ function clearCalendar(){
     }
 }
 
-function movePrevMonth(date){
+async function movePrevMonth(date){
     if (isNaN(date)){
         var newDate = 1;
     } else {
@@ -485,6 +485,11 @@ function movePrevMonth(date){
         var prevMonthDate = new Date(today.getFullYear(), prevMonth, newDate);
     }
 
+    // get month data
+    nextMonthData = currMonthData;
+    currMonthData = prevMonthData;
+    prevMonthData = await getMonthData(localStorage.getItem("userID"), prevMonthDate.getFullYear(), prevMonthDate.getMonth() - 1);
+
     // rebuildCalendar
     clearCalendar();
     buildCalendar(prevMonthDate);
@@ -492,7 +497,7 @@ function movePrevMonth(date){
     refreshSelectedDay();
 }
 
-function moveNextMonth(date){
+async function moveNextMonth(date){
     if (isNaN(date)){
         var newDate = 1;
     } else {
@@ -508,6 +513,11 @@ function moveNextMonth(date){
     } else {
         var nextMonthDate = new Date(today.getFullYear(), nextMonth, newDate);
     }
+
+    // get month data
+    prevMonthData = currMonthData;
+    currMonthData = nextMonthData;
+    nextMonthData = await getMonthData(localStorage.getItem("userID"), nextMonthDate.getFullYear(), nextMonthDate.getMonth() + 1);
 
     // rebuildCalendar
     clearCalendar();
@@ -684,6 +694,16 @@ function submitData(submitType){
     closePopup();
 }
 
+async function getMonthData(userID, year, month){
+    const response = await fetch("/data/" + userID + "/" + month + "-" + year + ".json");
+    if (response.ok && response.status == 200){
+        var data = await response.json();
+        return data.date;
+    } else {
+        return [];
+    }
+}
+
 async function getUserData(date){
     // get user ID
     const userID = localStorage.getItem("userID");
@@ -691,13 +711,7 @@ async function getUserData(date){
     // get current month
     const currYear = date.getFullYear();
     const currMonth = date.getMonth();
-    const currMonthRes = await fetch("/data/" + userID + "/" + currMonth + "-" + currYear + ".json");
-    if (currMonthRes.ok){
-        var currData = await currMonthRes.json();
-        currMonthData = currData.date;
-    } else {
-        currMonthData = [];
-    }
+    currMonthData = await getMonthData(userID, currYear, currMonth)
 
     // get previous month
     var prevYear = currYear;
@@ -706,13 +720,7 @@ async function getUserData(date){
         prevYear--;
         prevMonth = 11;
     }
-    const prevMonthRes = await fetch("/data/" + userID + "/" + prevMonth + "-" + prevYear + ".json");
-    if (prevMonthRes.ok){
-        var prevData = await prevMonthRes.json();
-        prevMonthData = prevData.date;
-    } else {
-        prevMonthData = [];
-    }
+    prevMonthData = await getMonthData(userID, prevYear, prevMonth);
     
     // get next month
     var nextYear = currYear;
@@ -721,17 +729,7 @@ async function getUserData(date){
         nextYear++;
         nextMonth = 0;
     }
-    const nextMonthRes = await fetch("/data/" + userID + "/" + nextMonth + "-" + nextYear + ".json");
-    if (nextMonthRes.ok){
-        var nextData = await nextMonthRes.json();
-        nextMonthData = nextData.date;
-    } else {
-        nextMonthData = [];
-    }
-
-    console.log(currMonthData)
-    console.log(prevMonthData)
-    console.log(nextMonthData)
+    nextMonthData = await getMonthData(userID, nextYear, nextMonth);
 }
 
 async function init(){
