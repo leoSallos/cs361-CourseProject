@@ -198,32 +198,6 @@ fn respondGet(writer: *std.Io.Writer, path: []const u8) !void {
     try writer.flush();
 }
 
-const EventDate = struct {
-    year: u16,
-    month: u8,
-    date: u8,
-};
-
-const EventPost = struct {
-    name: []u8,
-    status: []u8,
-    date: EventDate,
-    start: u16,
-    end: u16,
-    tags: [][]u8,
-    priority: u8,
-    location: []u8,
-    due: EventDate,
-};
-
-const DateEventList = struct {
-    list: []EventPost,
-};
-
-const EventFile = struct {
-    date: []DateEventList,
-};
-
 /// Handles and responds to POST request
 fn handlePost(reader: *std.Io.Reader, writer: *std.Io.Writer, path: []const u8) !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
@@ -285,7 +259,6 @@ fn writeFile(path: []const u8, data: []const u8) !void {
     defer file.close();
 
     try file.writeAll(data);
-    try file.flush();
 }
 
 /// Gets the content type of the requested file
