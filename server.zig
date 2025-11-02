@@ -216,8 +216,12 @@ const EventPost = struct {
     due: EventDate,
 };
 
+const DateEventList = struct {
+    list: []EventPost,
+};
+
 const EventFile = struct {
-    date: []EventFile,
+    date: []DateEventList,
 };
 
 /// Handles and responds to POST request
@@ -229,19 +233,17 @@ fn handlePost(reader: *std.Io.Reader, writer: *std.Io.Writer, path: []const u8) 
     const data = try reader.allocRemaining(allocator, std.Io.Limit.limited(std.math.maxInt(usize)));
     defer allocator.free(data);
 
-    // convert request to JSON
-    const parsedData = try std.json.parseFromSlice(EventPost, allocator, data, .{});
-    defer parsedData.deinit();
-
-    // get destination file data
+    // write data to file
     const halfDataPath = try mem.concat(allocator, u8, &[_][]const u8{"/data", path});
     const dataPath = try mem.concat(allocator, u8, &[_][]const u8{halfDataPath, });
-    const fileData = readFile(dataPath, allocator) catch |err| switch (err){
+    writeFile(dataPath, data) catch |err| switch (err){
+        error.FileNotFound => {
+            try writer.writeAll(get404());
+            try writer.flush();
+            return err;
+        },
         else => return err,
     };
-    allocator.free(halfDataPath);
-    allocator.free(dataPath);
-    defer allocator.free(fileData);
 
     // send response
     const httpHead = 
@@ -268,6 +270,22 @@ fn readFile(path: []const u8, allocator: mem.Allocator) ![]u8 {
 
     const maxSize = std.math.maxInt(usize);
     return try file.readToEndAlloc(allocator, maxSize);
+}
+
+/// Writes and trunkates string to file
+fn writeFile(path: []const u8, data: []const u8) !void {
+    const localPath = path[1..];
+    const file = fs.cwd().openFile(localPath, .{}) catch |err| switch (err){
+        error.FileNotFound => {
+            log.err("File not found: {s}", .{localPath});
+            return err;
+        },
+        else => return err,
+    };
+    defer file.close();
+
+    try file.writeAll(data);
+    try file.flush();
 }
 
 /// Gets the content type of the requested file
