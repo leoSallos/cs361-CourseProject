@@ -27,9 +27,9 @@ about in your week.
 - [ ] Settings Page
 - [ ] User schedule preferences
     - [ ] functional task creation
-- [ ] Database connection with server
+- [x] Database connection with server
     - [ ] sync user preferences
-    - [ ] sync tasks/events
+    - [x] sync tasks/events
 - **Sunday**
 - [ ] Visual modes
 - [ ] Visual polish

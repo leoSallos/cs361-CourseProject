@@ -10,59 +10,6 @@ var prevMonthData = [];
 var currMonthData = [];
 var nextMonthData = [];
 
-// testing data
-const testEventData = {
-    name: "test",
-    status: "event",
-    date: {
-        year: 2025,
-        month: 9,
-        date: 16,
-    },
-    start: 480,
-    end: 590,
-    tags: ["testing", "Event to Test"],
-    location: "Dearborn Hall",
-};
-const testTaskData = {
-    name: "test",
-    status: "task",
-    date: {
-        year: 2025,
-        month: 9,
-        date: 16,
-    },
-    start: 660,
-    end: 690,
-    tags: ["testing"],
-    priority: 1,
-    due: {
-        year: 2025,
-        month: 9,
-        day: 20,
-    },
-};
-const testCompleteData = {
-    name: "testComp",
-    status: "complete",
-    date: {
-        year: 2025,
-        month: 9,
-        date: 15,
-    },
-    start: 660,
-    end: 720,
-    tags: ["testing"],
-    priority: 2,
-    due: {
-        year: 2025,
-        month: 9,
-        day: 19,
-    },
-};
-currMonthData[16] = [testEventData, testTaskData];
-currMonthData[15] = [testCompleteData];
-
 function convert12hr(hour){
     if (hour < 12 && hour > 1){
         var tod = "am";
@@ -169,7 +116,7 @@ function makeLocationOrDueText(data){
     } else {
         var dueDate = " | Due ";
         var topOfToday = new Date(absToday.getFullYear(), absToday.getMonth(), absToday.getDate());
-        var dueDateDate = new Date(data.due.year, data.due.month, data.due.day);
+        var dueDateDate = new Date(data.due.year, data.due.month, data.due.date);
         var timeDiffMS = dueDateDate.getTime() - topOfToday.getTime();
         var timeDiff = Math.floor(timeDiffMS / 1000 / 60 / 60 / 24);
         if (timeDiff < 8 && timeDiff > 1){
@@ -182,9 +129,9 @@ function makeLocationOrDueText(data){
             dueDate = dueDate + "Yesterday";
         } else {
             if (data.due.year == absToday.getFullYear()){
-                dueDate = dueDate + months[data.due.month] + " " + data.due.day;
+                dueDate = dueDate + months[data.due.month] + " " + data.due.date;
             } else {
-                dueDate = dueDate + months[data.due.month] + " " + data.due.day + ", " + data.due.year;
+                dueDate = dueDate + months[data.due.month] + " " + data.due.date + ", " + data.due.year;
             }
         }
         locationOrDueText.textContent = dueDate;
@@ -737,12 +684,64 @@ function submitData(submitType){
     closePopup();
 }
 
-function init(){
+async function getUserData(date){
+    // get user ID
+    const userID = localStorage.getItem("userID");
+
+    // get current month
+    const currYear = date.getFullYear();
+    const currMonth = date.getMonth();
+    const currMonthRes = await fetch("/data/" + userID + "/" + currMonth + "-" + currYear + ".json");
+    if (currMonthRes.ok){
+        var currData = await currMonthRes.json();
+        currMonthData = currData.date;
+    } else {
+        currMonthData = [];
+    }
+
+    // get previous month
+    var prevYear = currYear;
+    var prevMonth = currMonth - 1;
+    if (prevMonth < 0){
+        prevYear--;
+        prevMonth = 11;
+    }
+    const prevMonthRes = await fetch("/data/" + userID + "/" + prevMonth + "-" + prevYear + ".json");
+    if (prevMonthRes.ok){
+        var prevData = await prevMonthRes.json();
+        prevMonthData = prevData.date;
+    } else {
+        prevMonthData = [];
+    }
+    
+    // get next month
+    var nextYear = currYear;
+    var nextMonth = currMonth + 1;
+    if (nextMonth >= 12){
+        nextYear++;
+        nextMonth = 0;
+    }
+    const nextMonthRes = await fetch("/data/" + userID + "/" + nextMonth + "-" + nextYear + ".json");
+    if (nextMonthRes.ok){
+        var nextData = await nextMonthRes.json();
+        nextMonthData = nextData.date;
+    } else {
+        nextMonthData = [];
+    }
+
+    console.log(currMonthData)
+    console.log(prevMonthData)
+    console.log(nextMonthData)
+}
+
+async function init(){
+    await getUserData(today);
     buildCalendar(today);
     buildTaskList(today);
 }
 
 // start of program
+localStorage.setItem("userID", "00000000");
 init();
 
 // button listeners

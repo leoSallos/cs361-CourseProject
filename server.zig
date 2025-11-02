@@ -18,12 +18,14 @@ const RequestError = error {
 const HeaderNames = enum {
     Host,
     @"User-Agent",
+    Connection,
 };
 
 const HTTPHeader = struct {
     requestLine: []const u8,
     host: []const u8,
     userAgent: []const u8,
+    connection: []const u8,
 };
 
 const contentTypes = .{
@@ -67,6 +69,9 @@ pub fn main() !void {
         };
         log.info("Request Line: {s}", .{header.requestLine});
 
+        // continue if connection is to close
+        if (mem.eql(u8, header.connection, "close")) continue;
+
         // setup for response
         var writeBuffer: [RECV_BUFF_SIZE]u8 = undefined;
         var httpWriter = conn.stream.writer(&writeBuffer);
@@ -99,6 +104,7 @@ fn parseHeader(reader: *std.Io.Reader) RequestError!HTTPHeader {
         .requestLine = undefined,
         .host = undefined,
         .userAgent = undefined,
+        .connection = undefined,
     };
 
     // get request line
@@ -115,6 +121,7 @@ fn parseHeader(reader: *std.Io.Reader) RequestError!HTTPHeader {
         switch (headerName){
             .Host => header.host = headerValue,
             .@"User-Agent" => header.userAgent = headerValue,
+            .Connection => header.connection = headerValue,
         }
     } else |err| {
         switch (err){
