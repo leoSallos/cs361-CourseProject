@@ -19,6 +19,7 @@ const HeaderNames = enum {
     Host,
     @"User-Agent",
     Connection,
+    @"Content-Length",
 };
 
 const HTTPHeader = struct {
@@ -26,6 +27,7 @@ const HTTPHeader = struct {
     host: []const u8,
     userAgent: []const u8,
     connection: []const u8,
+    contentLength: u32,
 };
 
 const contentTypes = .{
@@ -89,8 +91,7 @@ pub fn main() !void {
 
         } else if (mem.eql(u8, "POST", method)){
             // TODO, add catch statement
-            try handlePost(reader, writer, path);
-            log.err("No database to post to", .{});
+            try handlePost(reader, writer, path, header.contentLength);
         }
 
     } else |err| {
@@ -106,6 +107,7 @@ fn parseHeader(reader: *std.Io.Reader) RequestError!HTTPHeader {
         .host = undefined,
         .userAgent = undefined,
         .connection = undefined,
+        .contentLength = undefined,
     };
 
     // get request line
@@ -123,6 +125,7 @@ fn parseHeader(reader: *std.Io.Reader) RequestError!HTTPHeader {
             .Host => header.host = headerValue,
             .@"User-Agent" => header.userAgent = headerValue,
             .Connection => header.connection = headerValue,
+            .@"Content-Length" => header.contentLength = std.fmt.parseInt(u32, headerValue, 10) catch return RequestError.HeaderMalformed,
         }
     } else |err| {
         switch (err){
@@ -199,30 +202,16 @@ fn respondGet(writer: *std.Io.Writer, path: []const u8) !void {
 }
 
 /// Handles and responds to POST request
-fn handlePost(reader: *std.Io.Reader, writer: *std.Io.Writer, path: []const u8) !void {
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-    const allocator = gpa.allocator();
-
-    // retrieve data
-    const data = try reader.allocRemaining(allocator, std.Io.Limit.limited(std.math.maxInt(usize)));
-    defer allocator.free(data);
-
+fn handlePost(reader: *std.Io.Reader, writer: *std.Io.Writer, path: []const u8, contentLength: u32) !void {
     // write data to file
-    const halfDataPath = try mem.concat(allocator, u8, &[_][]const u8{"/data", path});
-    const dataPath = try mem.concat(allocator, u8, &[_][]const u8{halfDataPath, });
-    writeFile(dataPath, data) catch |err| switch (err){
-        error.FileNotFound => {
-            try writer.writeAll(get404());
-            try writer.flush();
-            return err;
-        },
-        else => return err,
-    };
+    try writeFile(path, reader.buffer[reader.seek..(reader.seek + contentLength)]);
 
     // send response
     const httpHead = 
         "HTTP/1.1 200 OK \r\n" ++
         "Connection: close\r\n" ++
+        "Content-Type: text/plain\r\n" ++
+        "Content-Length: 0\r\n" ++
         "\r\n"
         ;
     try writer.writeAll(httpHead);
@@ -249,7 +238,8 @@ fn readFile(path: []const u8, allocator: mem.Allocator) ![]u8 {
 /// Writes and trunkates string to file
 fn writeFile(path: []const u8, data: []const u8) !void {
     const localPath = path[1..];
-    const file = fs.cwd().openFile(localPath, .{}) catch |err| switch (err){
+    log.debug("{s}", .{path});
+    var file = fs.cwd().createFile(localPath, .{.truncate = true,}) catch |err| switch (err){
         error.FileNotFound => {
             log.err("File not found: {s}", .{localPath});
             return err;
@@ -288,6 +278,8 @@ fn get404() []const u8 {
 fn get204() []const u8 {
     return "HTTP/1.1 204 NO CONTENT\r\n" ++
         "Connection: close\r\n" ++
+        "Content-Type: text/plain\r\n" ++
+        "Content-Length: 0\r\n" ++
         "\r\n"
         ;
 }

@@ -661,34 +661,74 @@ function getEventPopupData(containerAction){
     return data;
 }
 
-function submitData(submitType){
-    removeErrorTexts();
+function getTaskPopupData(containerAction){
+    var failed = false;
 
-    var idx = {day: -1, month: ""};
+    // placeholder
+    failed = true;
+
+    if (failed){
+        return undefined;
+    }
+}
+
+async function submitData(submitType){
+    removeErrorTexts();
 
     // get data
     if (submitType.type == "event"){
         var data = getEventPopupData(submitType.action);
         if (!data) return;
-        idx.day = data.day;
-        idx.month = data.month;
-        if (submitType.action == "edit"){
-            // remove previous entry
-        }
-        // post data entry
     } else if (submitType.type == "task") {
-        if (submitType.action == "edit"){
-            // remove previous entry
+        var data = getTaskPopupData(submitType.action);
+        if (!data) return;
+    }
+
+    var dataYear = data.date.year;
+    var dataMonth = data.date.month;
+    var dataDate = data.date.date;
+
+    // get month data from server
+    const userID = localStorage.getItem("userID");
+    var monthData = await getMonthData(userID, dataYear, dataMonth);
+
+    // insert data into month data
+    if (monthData.length <= dataDate){
+        for (var i = monthData.length; i < dataDate; i++){
+            monthData.push([]);
         }
-        // post data entry
+        monthData.push([data]);
+    } else {
+        var inserted = false;
+        for (var i = 0; i < monthData[dataDate].length; i++){
+            if (monthData[dataDate][i].start > data.start && monthData[dataDate][i].end > data.end){
+                monthData[dataDate].splice(i, 0, data);
+                inserted = true;
+                break;
+            }
+        }
+        if (!inserted) monthData[dataDate].push(data);
+    }
+
+    if (submitType.action == "edit"){
+        // remove previous entry
     }
 
     // post to server
-    if (idx.day >= 0){
-    }
+    await fetch("/data/" + userID + "/" + dataMonth + "-" + dataYear + ".json", {
+        method: "POST",
+        body: JSON.stringify({ date: monthData}) + "\n",
+        headers: {"Content-Type": "application/json"}
+    }).then(function(res){
+        if (res.status != 200){
+            alert("Error: could not submit data");
+            return;
+        }
+    });
 
-    // update calendar
-    init();
+    // rebuild calendar
+    clearCalendar();
+    await init();
 
     // close popup after submit
     closePopup();
