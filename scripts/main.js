@@ -561,6 +561,12 @@ function closePopup(){
     for (var i = 0; i < selectors.length; i++){
         selectors[i].value = "";
     }
+
+    // remove task buttons
+    var buttons = document.querySelectorAll(".popup-task-completion-button");
+    for (var i = 0; i < buttons.length; i++){
+        buttons[i].parentNode.removeChild(buttons[i]);
+    }
     
     // remove error texts
     removeErrorTexts();
@@ -614,13 +620,77 @@ function fillEventData(data){
     location.value = data.location;
 }
 
-function fillTaskData(data, relMonth){
+function fillTaskData(data){
+    // name
+    var name = document.getElementById("edit-task-name");
+    name.value = data.name;
+
+    // date
+    var date = document.getElementById("edit-task-date");
+    if (data.date.month + 1 < 10){
+        var monthNum = "0" + (data.date.month + 1);
+    } else {
+        var monthNum = (data.date.month + 1);
+    }
+    if (data.date.date + 1 < 10){
+        var dateNum = "0" + (data.date.date + 1);
+    } else {
+        var dateNum = (data.date.date + 1);
+    }
+    date.value = data.date.year + "-" + monthNum + "-" + dateNum;
+
+    // start
+    var startHr = Math.floor(data.start / 60);
+    if (startHr < 10) startHr = "0" + startHr;
+    var startMin = data.start % 60;
+    if (startMin < 10) startMin = "0" + startMin;
+    var start = document.getElementById("edit-task-time-start");
+    start.value = startHr + ":" + startMin;
+
+    // end
+    var endHr = Math.floor(data.end / 60);
+    if (endHr < 10) endHr = "0" + endHr;
+    var endMin = data.end % 60;
+    if (endMin < 10) endMin = "0" + endMin;
+    var end = document.getElementById("edit-task-time-end");
+    end.value = endHr + ":" + endMin;
+
+    // due date
+    var dueDate = document.getElementById("edit-task-due-date");
+    if (data.due.month + 1 < 10){
+        var dueMonthNum = "0" + (data.due.month + 1);
+    } else {
+        var dueMonthNum = (data.due.month + 1);
+    }
+    if (data.due.date + 1 < 10){
+        var dueDateNum = "0" + (data.due.date + 1);
+    } else {
+        var dueDateNum = (data.due.date + 1);
+    }
+    dueDate.value = data.due.year + "-" + dueMonthNum + "-" + dueDateNum;
+
+
+    // tags
+    var tags = document.querySelectorAll("#edit-task-tags option");
+    for (var i = 0; i < tags.length; i++){
+        if (data.tags.includes(tags[i].value)){
+            tags[i].selected = true;
+        }
+    }
+
+    // priority
+    var priority = document.getElementById("edit-task-priority");
+    priority.children[data.priority].selected = true;
 }
 
 function openPopup(popupName, data, date, idx, relMonth){
     // make popup visable
     var container = document.getElementById(popupName + "-popup-container");
     container.classList.remove("hidden");
+
+    var inputContainer = container.querySelector(".popup-input-container");
+    var taskButton = document.createElement("button");
+    taskButton.classList.add("popup-task-completion-button");
 
     popupSelectedIdx = {date: date, idx: idx, month: relMonth};
 
@@ -631,8 +701,14 @@ function openPopup(popupName, data, date, idx, relMonth){
                 fillEventData(data);
                 break;
             case "task":
+                fillTaskData(data);
+                taskButton.textContent = "Finish Task";
+                inputContainer.appendChild(taskButton);
                 break;
             case "complete":
+                fillTaskData(data);
+                taskButton.textContent = "Reopen Task";
+                inputContainer.appendChild(taskButton);
                 break;
             default:
         }

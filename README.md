@@ -24,7 +24,7 @@ about in your week.
     - [x] open/close
     - [x] edit data
 - [x] Settings Page
-- [ ] User schedule preferences
+- [x] User schedule preferences
     - [ ] functional task creation
 - [x] Database connection with server
     - [x] sync user preferences
