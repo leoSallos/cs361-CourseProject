@@ -27,7 +27,7 @@ about in your week.
 - [ ] User schedule preferences
     - [ ] functional task creation
 - [x] Database connection with server
-    - [ ] sync user preferences
+    - [x] sync user preferences
     - [x] sync tasks/events
 - **Sunday**
 - [ ] Visual modes
