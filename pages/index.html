@@ -6,6 +6,7 @@
         <link rel="stylesheet" type="text/css" href="style/style.css">
         <link rel="stylesheet" type="text/css" href="style/main.css">
         <script src="scripts/main.js" defer></script>
+        <script src="scripts/index.js" defer></script>
     </head>
     <body>
         <header>
@@ -65,9 +66,7 @@
                         <input id="add-event-time-end" type="time" name="time">
                         <br><br>
                         <label for="tags">Tags</label>
-                        <select id="add-event-tags" name="tags" multiple>
-                            <option value="testing">testing</option>
-                            <option value="Event to Test">Event to Test</option>
+                        <select id="add-event-tags" class="tag-select" name="tags" multiple>
                         </select>
                         <br><br>
                         <label for="location">Location</label>
@@ -92,7 +91,7 @@
                         <input id="add-task-due-date" type="date" name="date">
                         <br><br>
                         <label for="tags">Tags</label>
-                        <select id="add-task-tags" name="tags" multiple>
+                        <select id="add-task-tags" class="tag-select" name="tags" multiple>
                         </select>
                         <br><br>
                         <label for="priority">Priority</label>

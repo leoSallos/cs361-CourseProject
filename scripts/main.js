@@ -727,8 +727,10 @@ async function submitData(submitType){
     });
 
     // rebuild calendar
+    await getUserData(today);
     clearCalendar();
-    await init();
+    buildCalendar(today);
+    buildTaskList(today);
 
     // close popup after submit
     closePopup();
@@ -772,8 +774,22 @@ async function getUserData(date){
     nextMonthData = await getMonthData(userID, nextYear, nextMonth);
 }
 
+function addTags(){
+    var tagSelects = document.getElementsByClassName("tag-select");
+    for (var i = 0; i < tagSelects.length; i++){
+        for (var j = 0; j < userSettings.tags.length; j++){
+            var newOption = document.createElement("option");
+            newOption.value = userSettings.tags[j];
+            newOption.textContent = userSettings.tags[j];
+            tagSelects[i].appendChild(newOption);
+        }
+    }
+}
+
 async function init(){
     await getUserData(today);
+    await getUserSettings();
+    addTags();
     buildCalendar(today);
     buildTaskList(today);
 }
