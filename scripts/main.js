@@ -387,6 +387,8 @@ function createEventDivs(idxDate, currMonth, dayID){
 }
 
 function buildCalendarGrid(date){
+    const dayInMs = 1000 * 60 * 60 * 24;
+
     // get container
     var container = document.getElementById("page-calendar");
 
@@ -396,7 +398,7 @@ function buildCalendarGrid(date){
     firstOfCurrMonth = new Date(date.getFullYear(), currMonth, 1);
     var firstDay = firstOfCurrMonth.getDay();
     var currTime = firstOfCurrMonth.getTime();
-    var offsetMS = (1000 * 60 * 60 * 24) * firstDay;
+    var offsetMS = dayInMs * firstDay;
     var idxDate = new Date(currTime - offsetMS);
 
     // create days
@@ -453,7 +455,16 @@ function buildCalendarGrid(date){
 
         // increment day
         var idxTime = idxDate.getTime();
-        idxDate = new Date(idxTime + (1000 * 60 * 60 * 24));
+        idxDate = new Date(idxTime + dayInMs);
+
+        // account for daylight saving ending
+        const idxHours = idxDate.getHours();
+        idxTime = idxDate.getTime();
+        if (idxHours == 23){
+            idxDate = new Date(idxTime + (dayInMs / 24));
+        } else if (idxHours == 1){
+            idxDate = new Date(idxTime - (dayInMs / 24));
+        }
     }
 }
 
