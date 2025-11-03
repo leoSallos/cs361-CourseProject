@@ -255,6 +255,8 @@ var removeTagsButton = document.getElementById("remove-tags-button");
 
 clockSelect.addEventListener("change", async function(){
     userSettings.clock = clockSelect.value;
+    clearTimeslots();
+    insertTimeslots();
     await postUserSettings();
 });
 themeSelect.addEventListener("change", async function(){

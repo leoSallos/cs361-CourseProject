@@ -11,18 +11,28 @@ var prevMonthData = [];
 var currMonthData = [];
 var nextMonthData = [];
 
-function convert12hr(hour){
-    if (hour < 12 && hour > 1){
-        var tod = "am";
-    } else if (hour > 12) {
-        hour -= 12;
-        var tod = "pm";
+function convertToTime(totalMins){
+    // get hours
+    var hrs = Math.floor(totalMins / 60);
+    if (userSettings.clock == "12hr"){
+        if (hrs == 0){
+            hrs = "12";
+            var tod = "am";
+        } else if (hrs > 12) {
+            hrs %= 12;
+            var tod = "pm";
+        } else {
+            var tod = "am";
+        }
     } else {
-        hour = 12;
-        var tod = "am";
+        var tod = "";
     }
 
-    return {hour: hour, tod: tod,};
+    // get minutes
+    var mins = totalMins % 60;
+    if (mins < 10) mins = "0" + mins;
+
+    return hrs + ":" + mins + tod;
 }
 
 function makeTimeContainer(data){
@@ -32,18 +42,13 @@ function makeTimeContainer(data){
     var timeText = document.createElement("p");
 
     // get start time
-    var startHour = convert12hr(Math.floor(data.start / 60));
-    var startMin = data.start % 60;
-    if (startMin < 10) startMin = "0" + startMin;
+    var startTime = convertToTime(data.start);
 
     // get end time
-    var endHour = convert12hr(Math.floor(data.end / 60));
-    var endMin = data.end % 60;
-    if (endMin < 10) endMin = "0" + endMin;
+    var endTime = convertToTime(data.end);
 
     // write text content
-    timeText.textContent = startHour.hour + ":" + startMin + startHour.tod +
-        " - " + endHour.hour + ":" + endMin + endHour.tod;
+    timeText.textContent = startTime + " - " + endTime;
     timeContainer.appendChild(timeText);
 
     return timeContainer;
@@ -305,19 +310,7 @@ function makeNewCalendarTaskElement(data, relMonth, date, taskIdx){
     } else {
         container.addEventListener("click", function(){openPopup("edit-event", data, date, taskIdx, relMonth)});
     }
-    var hour = Math.floor(data.start / 60);
-    if (hour < 12 && hour > 1){
-        var tod = "a";
-    } else if (hour > 12) {
-        hour -= 12;
-        var tod = "p";
-    } else {
-        hour = 12;
-        var tod = "a";
-    }
-    var min = data.start % 60;
-    if (min < 10) min = "0" + min;
-    timeText.textContent = hour + ":" + min + tod;
+    timeText.textContent = convertToTime(data.start);
     timeText.style.display = "inline";
     container.appendChild(timeText);
 
