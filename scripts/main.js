@@ -943,7 +943,6 @@ async function init(){
 }
 
 // start of program
-localStorage.setItem("userID", "00000000");
 init();
 
 // button listeners

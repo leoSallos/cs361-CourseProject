@@ -6,8 +6,21 @@ var userSettings = {
         flexable: [],
     },
     clock: "",
-    weekStart: "",
     theme: "",
+}
+
+async function postUserSettings(){
+    const userID = localStorage.getItem("userID");
+    await fetch("/data/" + userID + "/settings.json", {
+        method: "POST",
+        body: JSON.stringify(userSettings) + "\n",
+        headers: {"Content-Type": "application/json"}
+    }).then(function(res){
+        if (res.status != 200){
+            alert("Error: could not update setting");
+            return;
+        }
+    });
 }
 
 async function getUserSettings(){
@@ -24,3 +37,5 @@ async function getUserSettings(){
         userSettings = data;
     }
 }
+
+localStorage.setItem("userID", "00000000");

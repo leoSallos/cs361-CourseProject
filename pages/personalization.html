@@ -3,6 +3,9 @@
     <head>
         <title>Auto Planner - Personalization</title>
         <link rel="stylesheet" type="text/css" href="style/style.css">
+        <link rel="stylesheet" type="text/css" href="style/settings.css">
+        <script src="scripts/index.js" defer></script>
+        <script src="scripts/settings.js" defer></script>
     </head>
     <body>
         <header>
@@ -15,28 +18,100 @@
                         <img src="/img/cog.webp" alt="temp cog" width="75" height="75">
                     </a>
                 </div>
-                <div class="account-container">
-                    <a href="/account.html">
-                        <img src="/img/account.webp" alt="account silhouette" width="75" height="75">
-                    </a>
-                </div>
             </div>
         </header>
 
-        <div class="side-menu">
-            <div class="account-menu">
-                <a href="/account.html">
-                    Account
-                </a>
-            </div>
-            <div class="personilization-menu">
-                <a href="/personalization.html">
-                    Personalization
-                </a>
-            </div>
-        </div>
-
         <main>
+            <div class="side-menu">
+                <a href="/">
+                    <button class="return-to-calendar-button">Return to Calendar</button>
+                </a>
+                <div class="personilization-menu">
+                    <a href="/personalization.html">
+                        <h2>Personalization</h2>
+                    </a>
+                </div>
+            </div>
+
+            <div class="settings-list">
+                <div class="settings-list-item">
+                    <h1>Tags</h1>
+                    <select id="settings-tag-select" class="tag-select" name="tags" multiple>
+                    </select>
+                    <button id="remove-tags-button">Remove</button>
+                    <input id="new-tag-input" type="text" placeholder="Click to Type"></input>
+                    <button id="add-tag-button">Add</button>
+                </div>
+                <div class="settings-list-item">
+                    <h1>Timeslots</h1>
+                    <div id="timeslots-grid" class="timeslots-grid-container">
+                        <p>Sun</p>
+                        <p>Mon</p>
+                        <p>Tue</p>
+                        <p>Wed</p>
+                        <p>Thu</p>
+                        <p>Fri</p>
+                        <p>Sat</p>
+                        <div id="r1-sun" class="timeslot-day-container">
+                        </div>
+                        <div id="r1-mon" class="timeslot-day-container">
+                        </div>
+                        <div id="r1-tue" class="timeslot-day-container">
+                        </div>
+                        <div id="r1-wed" class="timeslot-day-container">
+                        </div>
+                        <div id="r1-thu" class="timeslot-day-container">
+                        </div>
+                        <div id="r1-fri" class="timeslot-day-container">
+                        </div>
+                        <div id="r1-sat" class="timeslot-day-container">
+                        </div>
+                        <div id="r2-sun" class="timeslot-day-container">
+                        </div>
+                        <div id="r2-mon" class="timeslot-day-container">
+                        </div>
+                        <div id="r2-tue" class="timeslot-day-container">
+                        </div>
+                        <div id="r2-wed" class="timeslot-day-container">
+                        </div>
+                        <div id="r2-thu" class="timeslot-day-container">
+                        </div>
+                        <div id="r2-fri" class="timeslot-day-container">
+                        </div>
+                        <div id="r2-sat" class="timeslot-day-container">
+                        </div>
+                        <div id="r3-sun" class="timeslot-day-container">
+                        </div>
+                        <div id="r3-mon" class="timeslot-day-container">
+                        </div>
+                        <div id="r3-tue" class="timeslot-day-container">
+                        </div>
+                        <div id="r3-wed" class="timeslot-day-container">
+                        </div>
+                        <div id="r3-thu" class="timeslot-day-container">
+                        </div>
+                        <div id="r3-fri" class="timeslot-day-container">
+                        </div>
+                        <div id="r3-sat" class="timeslot-day-container">
+                        </div>
+                    </div>
+                </div>
+                <div class="settings-list-item">
+                    <h1>Clock</h1>
+                    <select id="clock-settings-select">
+                        <option value="12hr">12 Hour</option>
+                        <option value="24hr">24 Hour</option>
+                    </select>
+                </div>
+                <div class="settings-list-item">
+                    <h1>Visual Modes</h1>
+                    <select id="visual-mode-select">
+                        <option value="light">Light</option>
+                        <option value="dark">Dark</option>
+                        <option value="high-contrast">High-Contrast</option>
+                    </select>
+                </div>
+            </div>
         </main>
 
         <footer>
