@@ -83,3 +83,6 @@ main {
 }
 
 /* Popups */
+.popup-error-text {
+    color: red;
+}
