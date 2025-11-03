@@ -117,6 +117,17 @@ function addTimeslot(row, day){
 }
 
 function removeTimeslot(row, day, idx){
+    if (!confirm("Are you sure you want to delete this timeslot?")) return;
+
+    // splice timeslot from data
+    userSettings.timeslots[row][day].splice(idx, 1);
+
+    // submit changes
+    postUserSettings();
+
+    // refresh timeslot data
+    clearTimeslots();
+    insertTimeslots();
 }
 
 function clearTags(){
@@ -196,7 +207,10 @@ function insertTimeslots(){
                 }
                 newTimeslot.textContent = startString + " " + endString;
 
-                newTimeslot.addEventListener("click", function(){removeTimeslot(row, i%7, j)});
+                const rowParam = row;
+                const dayParam = i%7;
+                const idxParam = j;
+                newTimeslot.addEventListener("click", function(){removeTimeslot(rowParam, dayParam, idxParam)});
 
                 timeslotDays[i].insertBefore(newTimeslot, timeslotDays[i].querySelector(".add-timeslot-button"));
             }
