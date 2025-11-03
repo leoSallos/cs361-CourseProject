@@ -1114,7 +1114,6 @@ function getTaskPopupData(containerAction, type){
             }
         }
     }
-    console.log(data);
 
     if (failed){
         return undefined;

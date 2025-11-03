@@ -35,6 +35,12 @@ async function getUserSettings(){
 
     if (data){
         userSettings = data;
+        // set theme
+        var body = document.querySelector("body");
+        body.classList.remove("light");
+        body.classList.remove("dark");
+        body.classList.remove("high-contrast");
+        body.classList.add(userSettings.theme);
     }
 }
 
