@@ -558,9 +558,44 @@ function closePopup(){
 }
 
 function fillEventData(data){
+    // name
+    var name = document.getElementById("edit-event-name");
+    name.value = data.name;
+
+    // date
+    var date = document.getElementById("edit-event-date");
+    date.value = data.date.year + "-" + (data.date.month + 1) + "-" + (data.date.date + 1);
+
+    // start
+    var startHr = Math.floor(data.start / 60);
+    if (startHr < 10) startHr = "0" + startHr;
+    var startMin = data.start % 60;
+    if (startMin < 10) startMin = "0" + startMin;
+    var start = document.getElementById("edit-event-time-start");
+    start.value = startHr + ":" + startMin;
+
+    // end
+    var endHr = Math.floor(data.end / 60);
+    if (endHr < 10) endHr = "0" + endHr;
+    var endMin = data.end % 60;
+    if (endMin < 10) endMin = "0" + endMin;
+    var end = document.getElementById("edit-event-time-end");
+    end.value = endHr + ":" + endMin;
+
+    // tags
+    var tags = document.querySelectorAll("#edit-event-tags option");
+    for (var i = 0; i < tags.length; i++){
+        if (data.tags.includes(tags[i].value)){
+            tags[i].selected = true;
+        }
+    }
+
+    // location
+    var location = document.getElementById("edit-event-location");
+    location.value = data.location;
 }
 
-function fillTaskData(data){
+function fillTaskData(data, relMonth){
 }
 
 function openPopup(popupName, data, date, idx, relMonth){
@@ -574,7 +609,7 @@ function openPopup(popupName, data, date, idx, relMonth){
     if (data){
         switch (data.status){
             case "event":
-                fillEventData(data, relMonth);
+                fillEventData(data);
                 break;
             case "task":
                 break;
@@ -704,6 +739,11 @@ async function submitData(submitType){
         if (!data) return;
     }
 
+    // remove old entry
+    if (submitType.action == "edit"){
+        removeEntry(1);
+    }
+
     var dataYear = data.date.year;
     var dataMonth = data.date.month;
     var dataDate = data.date.date;
@@ -728,10 +768,6 @@ async function submitData(submitType){
             }
         }
         if (!inserted) monthData[dataDate].push(data);
-    }
-
-    if (submitType.action == "edit"){
-        // remove previous entry
     }
 
     // post to server

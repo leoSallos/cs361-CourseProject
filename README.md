@@ -19,10 +19,10 @@ about in your week.
     - [x] open/close
     - [x] functional creation of new events (not tasks yet)
 - **Saturday**
-- [ ] Edit tast/event popup
+- [x] Edit tast/event popup
     - [x] visual block
     - [x] open/close
-    - [ ] edit data
+    - [x] edit data
 - [ ] Settings Page
 - [ ] User schedule preferences
     - [ ] functional task creation
