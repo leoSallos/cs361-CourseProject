@@ -205,12 +205,26 @@ function makeTaskListElement(data, dateIdx, taskIdx){
     // tags
     if (data.tags.length > 0){
         var tagText = document.createElement("p");
-        tagText.textContent = data.tags[0];
-        for (var i = 1; i < data.tags.length; i++){
-            tagText.textContent = tagText.textContent + ", " + data.tags[i];
+        while(!userSettings.tags.includes(data.tags[0])){ 
+            data.tags.splice(0, 1);
+            if (data.tags.length == 0) break;
         }
-        tagText.textContent = tagText.textContent + " |";
-        container.appendChild(tagText);
+        if (data.tags.length > 0){
+            tagText.textContent = data.tags[0];
+            var toRemove = [];
+            for (var i = 1; i < data.tags.length; i++){
+                if (userSettings.tags.includes(data.tags[i])){
+                    tagText.textContent = tagText.textContent + ", " + data.tags[i];
+                } else {
+                    toRemove.push(i);
+                }
+            }
+            tagText.textContent = tagText.textContent + " |";
+            container.appendChild(tagText);
+            for (var i = toRemove.length - 1; i >= 0; i--){
+                data.tags.splice(toRemove[i], 1);
+            }
+        }
     }
 
     // make task indicator
