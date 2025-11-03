@@ -41,6 +41,14 @@ header {
     text-decoration: none;
 }
 
+body.dark .site-title a {
+    color: white;
+}
+
+body.high-contrast .site-title a {
+    color: white;
+}
+
 /* Site-Wide Popups */
 
 .popup-container-wrapper {
@@ -78,8 +86,26 @@ header {
 /* Site Footer */
 
 /* Dark Mode */
+body.dark {
+    background-color: #444;
+    color: white;
+}
+
+body.dark div {
+    background-color: #444;
+    border-color: white;
+}
 
 /* High-Contrast Mode */
+body.high-contrast {
+    background-color: black;
+    color: white;
+}
+
+body.high-contrast div {
+    background-color: black;
+    border-color: white;
+}
 
 
 .hidden {

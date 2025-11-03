@@ -25,10 +25,10 @@ about in your week.
     - [x] edit data
 - [x] Settings Page
 - [x] User schedule preferences
-    - [ ] functional task creation
+    - [x] functional task creation
 - [x] Database connection with server
     - [x] sync user preferences
     - [x] sync tasks/events
 - **Sunday**
-- [ ] Visual modes
+- [x] Visual modes
 - [ ] Visual polish
