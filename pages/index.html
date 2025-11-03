@@ -103,7 +103,7 @@
                         </select>
                         <br>
                         <label>
-                            <input id="add-task-increase-priority" type="checkbox">Increase priority close to due date.</label>
+                            <input id="add-task-increase-priority" type="checkbox">Increase priority closer to due date.</label>
                         <br><br>
                     </div>
                     <div class="popup-bottom-buttons">
@@ -117,8 +117,27 @@
                 <div class="popup-container">
                     <button class="close-button">X</button>
                     <h1 class="popup-title">Edit Event</h1>
+                    <div class="popup-input-container">
+                        <label for="name">Name</label>
+                        <input id="edit-event-name" type="text" name="name" placeholder="Click to Type">
+                        <br><br>
+                        <label for="date">Date</label>
+                        <input id="edit-event-date" type="date" name="date">
+                        <br><br>
+                        <label for="time">Time</label>
+                        <input id="edit-event-time-start" type="time" name="time"> -
+                        <input id="edit-event-time-end" type="time" name="time">
+                        <br><br>
+                        <label for="tags">Tags</label>
+                        <select id="edit-event-tags" class="tag-select" name="tags" multiple>
+                        </select>
+                        <br><br>
+                        <label for="location">Location</label>
+                        <input id="edit-event-location" type="text" name="location" placeholder="Click to Type">
+                    </div>
                     <div class="popup-bottom-buttons">
                         <button class="popup-cancel-button">Cancel</button>
+                        <button class="popup-delete-button">Delete</button>
                         <button class="popup-submit-button" onclick="submitData({action: 'edit', type: 'event',})">Submit</button>
                     </div>
                 </div>
@@ -128,8 +147,39 @@
                 <div class="popup-container">
                     <button class="close-button">X</button>
                     <h1 class="popup-title">Edit Task</h1>
+                    <div class="popup-input-container">
+                        <label for="name">Name</label>
+                        <input id="edit-task-name" type="text" name="name" placeholder="Click to Type">
+                        <br><br>
+                        <label for="date">Date</label>
+                        <input id="edit-task-date" type="date" name="date">
+                        <br><br>
+                        <label for="time">Time</label>
+                        <input id="edit-task-time-start" type="time" name="time"> -
+                        <input id="edit-task-time-end" type="time" name="time">
+                        <br><br>
+                        <label for="date">Due Date</label>
+                        <input id="edit-task-due-date" type="date" name="date">
+                        <br><br>
+                        <label for="tags">Tags</label>
+                        <select id="edit-task-tags" class="tag-select" name="tags" multiple>
+                        </select>
+                        <br><br>
+                        <label for="priority">Priority</label>
+                        <select id="edit-task-tags" name="priority">
+                            <option value="" disabled selected></option>
+                            <option value="Low">Low</option>
+                            <option value="Medium">Medium</option>
+                            <option value="High">High</option>
+                        </select>
+                        <br>
+                        <label>
+                            <input id="edit-task-increase-priority" type="checkbox">Increase priority closer to due date.</label>
+                        <br><br>
+                    </div>
                     <div class="popup-bottom-buttons">
                         <button class="popup-cancel-button">Cancel</button>
+                        <button class="popup-delete-button">Delete</button>
                         <button class="popup-submit-button" onclick="submitData({action: 'edit', type: 'task',})">Submit</button>
                     </div>
                 </div>

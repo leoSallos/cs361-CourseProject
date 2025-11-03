@@ -12,7 +12,6 @@ about in your week.
 - [x] Calendar day selection 
 - [x] Load tasks onto calendar
 - [x] Load selected day's tasks onto task list
-- **Friday**
 - [x] Server accepts POST requests
 - [x] Welcome popup
 - [x] Add task/event popup
@@ -21,7 +20,7 @@ about in your week.
     - [x] functional creation of new events (not tasks yet)
 - **Saturday**
 - [ ] Edit tast/event popup
-    - [ ] visual block
+    - [x] visual block
     - [x] open/close
     - [ ] edit data
 - [ ] Settings Page
