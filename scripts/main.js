@@ -230,7 +230,7 @@ function buildTaskList(date){
     if (currMonthData[currDate - 1]){
         tasksToAdd = currMonthData[currDate - 1];
     }
-    for (var i = 0; i < 3 && i < tasksToAdd.length; i++){
+    for (var i = 0; i < tasksToAdd.length; i++){
         container.appendChild(makeTaskListElement(tasksToAdd[i], currDate - 1, i));
     }
 }
@@ -331,7 +331,7 @@ function makeNewCalendarTaskElement(data, relMonth, date, taskIdx){
     return container;
 }
 
-function createEventDivs(idxDate, currMonth){
+function createEventDivs(idxDate, currMonth, dayID){
     const idxDateNum = idxDate.getDate() - 1;
     var tasksToAdd = [];
     var taskElements = [];
@@ -373,6 +373,11 @@ function createEventDivs(idxDate, currMonth){
         }
         if (tasksToAdd.length > 4){
             // add "show more" element
+            var showMore = document.createElement("button");
+            showMore.classList.add("task-button");
+            showMore.textContent = (tasksToAdd.length - 3) + " More...";
+            showMore.addEventListener("click", function(){selectDay(dayID);});
+            taskElements[3] = showMore;
         } else if (tasksToAdd.length == 4){
             taskElements[3] = makeNewCalendarTaskElement(tasksToAdd[3], taskMonth, idxDateNum, 3);
         }
@@ -412,7 +417,7 @@ function buildCalendarGrid(date){
         dayNum.addEventListener("click", function(){selectDay(dayID);});
 
         // create event divs
-        var taskElements = createEventDivs(idxDate, currMonth);
+        var taskElements = createEventDivs(idxDate, currMonth, dayID);
 
         // create day div 
         var day = document.createElement('div');
