@@ -19,9 +19,9 @@ function insertUserData(){
     var clock = document.getElementById("clock-settings-select");
     clock.value = userSettings.clock;
 
-    // insert visual mode
-    var visualMode = document.getElementById("visual-mode-select");
-    visualMode.value = userSettings.theme;
+    // insert theme
+    var theme = document.getElementById("theme-select");
+    theme.value = userSettings.theme;
 }
 
 async function init(){
@@ -33,7 +33,7 @@ init();
 
 // event listeners
 var clockSelect = document.getElementById("clock-settings-select");
-var visualModeSelect = document.getElementById("visual-mode-select");
+var themeSelect = document.getElementById("theme-select");
 var addTagButton = document.getElementById("add-tag-button");
 var removeTagsButton = document.getElementById("remove-tags-button");
 
@@ -41,7 +41,7 @@ clockSelect.addEventListener("change", async function(){
     userSettings.clock = clockSelect.value;
     await postUserSettings();
 });
-visualModeSelect.addEventListener("change", async function(){
-    userSettings.theme = visualModeSelect.value;
+themeSelect.addEventListener("change", async function(){
+    userSettings.theme = themeSelect.value;
     await postUserSettings();
 });
