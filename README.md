@@ -18,7 +18,6 @@ about in your week.
     - [x] visual block
     - [x] open/close
     - [x] functional creation of new events (not tasks yet)
-- **Saturday**
 - [x] Edit tast/event popup
     - [x] visual block
     - [x] open/close
@@ -29,6 +28,5 @@ about in your week.
 - [x] Database connection with server
     - [x] sync user preferences
     - [x] sync tasks/events
-- **Sunday**
 - [x] Visual modes
 - [ ] Visual polish
