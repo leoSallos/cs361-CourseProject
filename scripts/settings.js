@@ -3,15 +3,16 @@ const days = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 function insertValidTimeslot(start, end, row, day){
     // check for conflict
     for (var i = 0; i < 3; i++){
-        if (userSettings.timeslots[i].length > 0){ 
+        if (userSettings.timeslots[i].length > day){ 
             if (userSettings.timeslots[i][day].length > 0){
                 for (var j = 0; j < userSettings.timeslots[i][day].length; j++){
                     const dataStart = userSettings.timeslots[i][day][j].start;
                     const dataEnd = userSettings.timeslots[i][day][j].end;
-                    if ((dataStart == null && dataEnd >= start) ||
+                    if ((dataStart == null && dataEnd == null) ||
+                        (dataStart == null && dataEnd > start) ||
                         (dataEnd == null && dataStart <= end) ||
-                        (dataStart <= start && dataEnd >= start) ||
-                        (dataEnd >= end && dataStart <= end)){
+                        (dataStart <= start && dataEnd > start) ||
+                        (dataEnd > end && dataStart <= end)){
                         return false;
                     }
                 }
@@ -20,10 +21,11 @@ function insertValidTimeslot(start, end, row, day){
     }
 
     // insert into row
-    if (userSettings.timeslots[row].length == 0){
-        var newArr = [];
-        newArr[day] = [{start: start, end: end}];
-        userSettings.timeslots[row] = newArr;
+    if (userSettings.timeslots[row].length <= day){
+        while (userSettings.timeslots[row].length < day){
+            userSettings.timeslots[row].push([]);
+        }
+        userSettings.timeslots[row].push([{start: start, end: end}]);
     } else if (userSettings.timeslots[row][day].length == 0){
         userSettings.timeslots[row][day] = [{start: start, end: end}];
     } else {
@@ -48,13 +50,15 @@ function insertValidTimeslot(start, end, row, day){
     return true;
 }
 
-function submitTimeslot(row, day, addButton, submitButton, startInput, endInput){
-    // check for proper input
-    if (startInput.value == "" && endInput.value == ""){
-        alert("At least one input must have a value.");
-        return;
-    }
+function closeAddNewTimeslot(addButton, submitButton, startInput, endInput, cancelButton){
+    addButton.classList.remove("hidden");
+    submitButton.parentNode.removeChild(startInput);
+    submitButton.parentNode.removeChild(endInput);
+    submitButton.parentNode.removeChild(cancelButton);
+    submitButton.parentNode.removeChild(submitButton);
+}
 
+function submitTimeslot(row, day, addButton, submitButton, startInput, endInput, cancelButton){
     // get input values
     if (startInput.value == ""){
         var startTime = null;
@@ -82,10 +86,7 @@ function submitTimeslot(row, day, addButton, submitButton, startInput, endInput)
     postUserSettings();
 
     // remove temp inputs
-    addButton.classList.remove("hidden");
-    submitButton.parentNode.removeChild(startInput);
-    submitButton.parentNode.removeChild(endInput);
-    submitButton.parentNode.removeChild(submitButton);
+    closeAddNewTimeslot(addButton, submitButton, startInput, endInput, cancelButton);
 
     // refresh timeslot data
     clearTimeslots();
@@ -105,14 +106,20 @@ function addTimeslot(row, day){
     endInput.id = "timeslot-end-input";
     endInput.type = "time";
 
-    // make submit button
+    // make buttons
     var submitButton = document.createElement("button");
     submitButton.classList.add("add-timeslot-button");
     submitButton.textContent = "Submit";
-    submitButton.addEventListener("click", function(){submitTimeslot(row, day, button, submitButton, startInput, endInput)});
+    var cancelButton = document.createElement("button");
+    cancelButton.classList.add("add-timeslot-button");
+    cancelButton.textContent = "Cancel";
+
+    cancelButton.addEventListener("click", function(){closeAddNewTimeslot(button, submitButton, startInput, endInput, cancelButton)});
+    submitButton.addEventListener("click", function(){submitTimeslot(row, day, button, submitButton, startInput, endInput, cancelButton)});
 
     button.parentNode.insertBefore(startInput, button);
     button.parentNode.insertBefore(endInput, button);
+    button.parentNode.insertBefore(cancelButton, button);
     button.parentNode.insertBefore(submitButton, button);
 }
 
