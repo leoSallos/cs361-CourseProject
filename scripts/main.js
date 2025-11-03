@@ -146,6 +146,46 @@ function makeLocationOrDueText(data){
     return locationOrDueText;
 }
 
+async function toggleTaskCompletion(data){
+    // toggle value
+    switch (data.status){
+        case "task":
+            data.status = "complete";
+            break;
+        case "complete":
+            data.status = "task";
+            break;
+        default:
+    }
+
+    // post changes
+    const userID = localStorage.getItem("userID");
+    if (data.date.month == today.getMonth()){
+        var monthData = currMonthData;
+    } else if ((data.date.year == today.getFullYear() && data.date.month < today.getMonth()) || data.date.year < today.getFullYear()){
+        var monthData = prevMonthData;
+    } else {
+        var monthData = nextMonthData;
+    }
+    await fetch("/data/" + userID + "/" + data.date.month + "-" + data.date.year + ".json", {
+        method: "POST",
+        body: JSON.stringify({ date: monthData}) + "\n",
+        headers: {"Content-Type": "application/json"}
+    }).then(function(res){
+        if (res.status != 200){
+            alert("Error: could not submit data");
+            return;
+        }
+    });
+
+    // reload elements
+    closePopup();
+    clearCalendar();
+    clearTaskList();
+    buildCalendar(today);
+    buildTaskList(today);
+}
+
 function makeTaskListElement(data, dateIdx, taskIdx){
     var bigContainer = document.createElement("div");
     bigContainer.classList.add("task-list-container");
@@ -189,7 +229,7 @@ function makeTaskListElement(data, dateIdx, taskIdx){
         container.addEventListener("click", function(){openPopup("edit-task", data, dateIdx, taskIdx)});
         var taskButton = document.createElement("button");
         taskButton.classList.add("task-completion-button");
-        taskButton.addEventListener("click", function(){});
+        taskButton.addEventListener("click", function(){toggleTaskCompletion(data)});
 
         if (data.status == "task"){
             taskButton.textContent = "Finish Task";
@@ -691,6 +731,7 @@ function openPopup(popupName, data, date, idx, relMonth){
     var inputContainer = container.querySelector(".popup-input-container");
     var taskButton = document.createElement("button");
     taskButton.classList.add("popup-task-completion-button");
+    taskButton.addEventListener("click", function(){toggleTaskCompletion(data)});
 
     popupSelectedIdx = {date: date, idx: idx, month: relMonth};
 
@@ -829,7 +870,7 @@ async function submitData(submitType){
     if (submitType.type == "event"){
         var data = getEventPopupData(submitType.action);
         if (!data) return;
-    } else if (submitType.type == "task") {
+    } else if (submitType.type == "task" || submitType.type == "complete") {
         var data = getTaskPopupData(submitType.action);
         if (!data) return;
     }
