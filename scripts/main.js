@@ -863,6 +863,100 @@ function getEventPopupData(containerAction){
     return data;
 }
 
+function checkEventOverlap(date){
+}
+
+function checkTimeslotDay(day, length){
+    var timeslot = {
+        start: 0,
+        status: true,
+    };
+    const dayInMin = 60 * 24;
+
+    // no entry
+    if (!day) return timeslot;
+    if (day.length == 0) return timeslot;
+
+    // check for open slot
+    if (day[0].start == null && day[0].end == null){
+        timeslot.status = false;
+        return timeslot;
+    }
+
+    for (var i = 0; i < day.length; i++){
+        if (((i+1) == day.length && day[i].end == null) ||
+                ((day[i].end + length) >= dayInMin)) {
+            timeslot.status = false;
+            return timeslot;
+        } else if (((i+1) < day.length && (day[i].end + length) > day[i+1].start) ||
+                (i == 0 && length[i].start != null && length > day[i].start)){
+            continue;
+        } else {
+            timeslot.start = day[i].end;
+            return timeslot;
+        }
+    }
+}
+
+function calulateTaskPosition(data, length, canUseUnavailable){
+    var idx = new Date(absToday.getFullYear(), absToday.getMonth(), absToday.getDate());
+    const dueDate = new Date(data.due.year, data.due.month, data.due.date);
+    const dayInMs = 1000 * 60 * 60 * 24;
+
+    // loop for each level of acceptance
+    for (var i = 3; i >= 0; i--){
+        if (i == 0 && !canUseUnavailable) break;
+
+        // loop for each day till due date
+        while (dueDate.getTime() >= idx.getTime()){
+            const day = idx.getDay();
+            var timeslot = {
+                start: 0,
+                status: true,
+            };
+
+            // check timeslots
+            if (i > 0 && !canUseUnavailable){
+                timeslot = checkTimeslotDay(userSettings.timeslots[0][day], length);
+            }
+            if (timeslot.status && i > 1){
+                timeslot = checkTimeslotDay(userSettings.timeslots[1][day], length);
+            }
+            if (timeslot.status && i > 2){
+                timeslot = checkTimeslotDay(userSettings.timeslots[2][day], length);
+            }
+
+            // check events
+            checkEventOverlap(date);
+
+            // correct found
+            if (timeslot.status){
+                data.date.year = idx.getFullYear();
+                data.date.month = idx.getMonth();
+                data.date.date = idx.getDate();
+                data.start = timeslot.start;
+                data.end = timeslot.start + length;
+                return true;
+            }
+
+            // increment day
+            var incTime = idx.getTime();
+            idx = new Date(incTime + dayInMs);
+
+            // account for daylight savings
+            const idxHours = idx.getHours();
+            incTime = idx.getTime();
+            if (idxHours == 23){
+                idx = new Date(incTime + (dayInMs / 24));
+            } else if (idxHours == 1){
+                idx = new Date(incTime - (dayInMs / 24));
+            }
+        }
+    }
+
+    return false;
+}
+
 function getTaskPopupData(containerAction, type){
     var failed = false;
     var data = {
@@ -890,6 +984,51 @@ function getTaskPopupData(containerAction, type){
     if (!data.name || data.name == ""){
         makeErrorMessage(nameElement, "Must add a name");
         failed = true;
+    }
+
+    // length
+    var lengthElement = document.getElementById(containerAction + "-task-length");
+    const length = lengthElement.value;
+    if (length <= 0){
+        makeErrorMessage(lengthElement, "Length must be greater than 0.");
+        failed = true;
+    }
+
+    // due date
+    var dueDateElement = document.getElementById(containerAction + "-task-due-date");
+    var dueDateString = dueDateElement.value;
+    if (!dueDateString || dueDateString == ""){
+        makeErrorMessage(dueDateElement, "Must add a due date.");
+        failed = true;
+    } else {
+        var dueDateData = dueDateString.split('-');
+        data.due.year = dueDateData[0];
+        data.due.month = dueDateData[1] - 1;
+        data.due.date = dueDateData[2] - 1;
+    }
+
+    // tags
+    var tagElement = document.getElementById(containerAction + "-task-tags");
+    for (var i = 0; i < tagElement.selectedOptions.length; i++){
+        data.tags.push(tagElement.selectedOptions[i].value);
+    }
+
+    // priority
+    var priotityElement = document.getElementById(containerAction + "-task-priority");
+    var priorityString = priotityElement.value;
+    switch (priorityString){
+        case "Low":
+            data.priority = 0;
+            break;
+        case "Medium":
+            data.priority = 1;
+            break;
+        case "High":
+            data.priority = 2;
+            break;
+        default:
+            makeErrorMessage(priotityElement, "Must set a priority for the task");
+            failed = true;
     }
         
     if (containerAction == "edit"){
@@ -935,46 +1074,20 @@ function getTaskPopupData(containerAction, type){
             makeErrorMessage(startElement, "End time must be after the start time.");
             failed = true;
         }
-    } else {
+    } else if (!failed) {
         // set position & time
+        if (!calulateTaskPosition(data, length, false)){ 
+            if (confirm("Could not find position for task.\nWould you like to include blocked timeslots in the selection?")){
+                if (!calulateTaskPosition(data, length, true)){
+                    alert("Could not find position for task.");
+                    failed = true;
+                }
+            } else {
+                failed = true;
+            }
+        }
     }
-
-    // due date
-    var dueDateElement = document.getElementById(containerAction + "-task-due-date");
-    var dueDateString = dueDateElement.value;
-    if (!dueDateString || dueDateString == ""){
-        makeErrorMessage(dueDateElement, "Must add a due date.");
-        failed = true;
-    } else {
-        var dueDateData = dueDateString.split('-');
-        data.due.year = dueDateData[0];
-        data.due.month = dueDateData[1] - 1;
-        data.due.date = dueDateData[2] - 1;
-    }
-
-    // tags
-    var tagElement = document.getElementById(containerAction + "-task-tags");
-    for (var i = 0; i < tagElement.selectedOptions.length; i++){
-        data.tags.push(tagElement.selectedOptions[i].value);
-    }
-
-    // priority
-    var priotityElement = document.getElementById(containerAction + "-task-priority");
-    var priorityString = priotityElement.value;
-    switch (priorityString){
-        case "Low":
-            data.priority = 0;
-            break;
-        case "Medium":
-            data.priority = 1;
-            break;
-        case "High":
-            data.priority = 2;
-            break;
-        default:
-            makeErrorMessage(priotityElement, "Must set a priority for the task");
-            failed = true;
-    }
+    console.log(data);
 
     if (failed){
         return undefined;
