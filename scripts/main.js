@@ -863,7 +863,33 @@ function getEventPopupData(containerAction){
     return data;
 }
 
-function checkEventOverlap(date){
+function checkEventOverlap(date, start, length){
+    var eventData = [];
+    var nextYear =  today.getFullYear();
+    var nextMonth = today.getMonth() + 1;
+    if (nextMonth >= 12){
+        nextYear++;
+        nextMonth = 0;
+    }
+
+    if (date.getFullYear() == today.getFullYear() && date.getMonth() == today.getMonth()){
+        eventData = currMonthData;
+    } else if (date.getFullYear() == nextYear && date.getMonth() == nextMonth) {
+        eventData = nextMonthData;
+    } else {
+        return undefined;
+    }
+
+    const dateNum = date.getDate();
+    if (!eventData[dateNum]) return true;
+    for (var i = 0; i < eventData[dateNum].length; i++){
+        if ((eventData[dateNum][i].start <= start && eventData[dateNum][i].end > start) ||
+                (eventData[dateNum][i].start >= start && eventData[dateNum][i].start < (start + length))){
+            return false;
+        }
+    }
+
+    return true;
 }
 
 function checkTimeslotDay(day, length){
@@ -889,7 +915,7 @@ function checkTimeslotDay(day, length){
             timeslot.status = false;
             return timeslot;
         } else if (((i+1) < day.length && (day[i].end + length) > day[i+1].start) ||
-                (i == 0 && length[i].start != null && length > day[i].start)){
+                (i == 0 && day[i].start != null && length > day[i].start)){
             continue;
         } else {
             timeslot.start = day[i].end;
@@ -900,7 +926,7 @@ function checkTimeslotDay(day, length){
 
 function calulateTaskPosition(data, length, canUseUnavailable){
     var idx = new Date(absToday.getFullYear(), absToday.getMonth(), absToday.getDate());
-    const dueDate = new Date(data.due.year, data.due.month, data.due.date);
+    const dueDate = new Date(data.due.year, data.due.month, data.due.date + 1);
     const dayInMs = 1000 * 60 * 60 * 24;
 
     // loop for each level of acceptance
@@ -908,7 +934,7 @@ function calulateTaskPosition(data, length, canUseUnavailable){
         if (i == 0 && !canUseUnavailable) break;
 
         // loop for each day till due date
-        while (dueDate.getTime() >= idx.getTime()){
+        while ((dueDate.getTime() + (dayInMs - 1)) >= idx.getTime()){
             const day = idx.getDay();
             var timeslot = {
                 start: 0,
@@ -917,23 +943,24 @@ function calulateTaskPosition(data, length, canUseUnavailable){
 
             // check timeslots
             if (i > 0 && !canUseUnavailable){
-                timeslot = checkTimeslotDay(userSettings.timeslots[0][day], length);
-            }
-            if (timeslot.status && i > 1){
-                timeslot = checkTimeslotDay(userSettings.timeslots[1][day], length);
-            }
-            if (timeslot.status && i > 2){
-                timeslot = checkTimeslotDay(userSettings.timeslots[2][day], length);
+                timeslot = checkTimeslotDay(userSettings.timeslots[0][day], Number(length));
             }
 
             // check events
-            checkEventOverlap(date);
+            if (timeslot.status){
+                var res = checkEventOverlap(idx, timeslot.start, length);
+                if (res == undefined){
+                    alert("Calculating unloaded month, please choose due date closer to selected day on calendar.");
+                    return false;
+                } else if (res == false){
+                }
+            }
 
             // correct found
             if (timeslot.status){
                 data.date.year = idx.getFullYear();
                 data.date.month = idx.getMonth();
-                data.date.date = idx.getDate();
+                data.date.date = idx.getDate() - 1;
                 data.start = timeslot.start;
                 data.end = timeslot.start + length;
                 return true;

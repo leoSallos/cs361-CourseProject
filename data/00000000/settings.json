@@ -1,1 +1,1 @@
-{"tags":["testing","Event to Test"],"timeslots":[[[],[{"start":null,"end":null}],[{"start":null,"end":null}],[{"start":null,"end":null}],[],[],[]],[],[]],"clock":"12hr","theme":"light"}
+{"tags":["testing","Event to Test"],"timeslots":[[[],[{"start":null,"end":null}],[{"start":null,"end":null}],[{"start":null,"end":120},{"start":120,"end":960}],[],[],[]],[[],[],[],[]],[]],"clock":"12hr","theme":"light"}
