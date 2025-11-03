@@ -779,9 +779,6 @@ function getEventPopupData(containerAction){
         location: "",
     };
 
-    // status
-    data.status = "event";
-
     // name
     var nameElement = document.getElementById(containerAction + "-event-name");
     data.name = nameElement.value;
@@ -852,15 +849,123 @@ function getEventPopupData(containerAction){
     return data;
 }
 
-function getTaskPopupData(containerAction){
+function getTaskPopupData(containerAction, type){
     var failed = false;
+    var data = {
+        name: "",
+        status: type,
+        date: {
+            year: "",
+            month: "",
+            date: "",
+        },
+        start: "",
+        end: "",
+        due: {
+            year: "",
+            month: "",
+            date: "",
+        },
+        tags: [],
+        priority: "",
+    };
 
-    // placeholder
-    failed = true;
+    // name
+    var nameElement = document.getElementById(containerAction + "-task-name");
+    data.name = nameElement.value;
+    if (!data.name || data.name == ""){
+        makeErrorMessage(nameElement, "Must add a name");
+        failed = true;
+    }
+        
+    if (containerAction == "edit"){
+        // date
+        var dateElement = document.getElementById(containerAction + "-task-date");
+        var dateString = dateElement.value;
+        if (!dateString || dateString == ""){
+            makeErrorMessage(dateElement, "Must add a date.");
+            failed = true;
+        } else {
+            var dateData = dateString.split('-');
+            data.date.year = dateData[0];
+            data.date.month = dateData[1] - 1;
+            data.date.date = dateData[2] - 1;
+        }
+
+        // start
+        var startElement = document.getElementById(containerAction + "-task-time-start");
+        var startString = startElement.value;
+        if (!startString || startString == ""){
+            makeErrorMessage(startElement, "Must enter a start time.");
+            failed = true;
+        } else {
+            var startData = startString.split(':');
+            data.start = startData[0] * 60;
+            data.start += startData[1] * 1;
+        }
+
+        // end
+        var endElement = document.getElementById(containerAction + "-task-time-end");
+        var endString = endElement.value;
+        if (!endString || endString == ""){
+            makeErrorMessage(startElement, "Must enter an end time.");
+            failed = true;
+        } else {
+            var endData = endString.split(':');
+            data.end = endData[0] * 60;
+            data.end += endData[1] * 1;
+        }
+
+        // start-end error checking
+        if (data.end < data.start){
+            makeErrorMessage(startElement, "End time must be after the start time.");
+            failed = true;
+        }
+    } else {
+        // set position & time
+    }
+
+    // due date
+    var dueDateElement = document.getElementById(containerAction + "-task-due-date");
+    var dueDateString = dueDateElement.value;
+    if (!dueDateString || dueDateString == ""){
+        makeErrorMessage(dueDateElement, "Must add a due date.");
+        failed = true;
+    } else {
+        var dueDateData = dueDateString.split('-');
+        data.due.year = dueDateData[0];
+        data.due.month = dueDateData[1] - 1;
+        data.due.date = dueDateData[2] - 1;
+    }
+
+    // tags
+    var tagElement = document.getElementById(containerAction + "-task-tags");
+    for (var i = 0; i < tagElement.selectedOptions.length; i++){
+        data.tags.push(tagElement.selectedOptions[i].value);
+    }
+
+    // priority
+    var priotityElement = document.getElementById(containerAction + "-task-priority");
+    var priorityString = priotityElement.value;
+    switch (priorityString){
+        case "Low":
+            data.priority = 0;
+            break;
+        case "Medium":
+            data.priority = 1;
+            break;
+        case "High":
+            data.priority = 2;
+            break;
+        default:
+            makeErrorMessage(priotityElement, "Must set a priority for the task");
+            failed = true;
+    }
 
     if (failed){
         return undefined;
     }
+    return data;
 }
 
 async function submitData(submitType){
@@ -871,7 +976,7 @@ async function submitData(submitType){
         var data = getEventPopupData(submitType.action);
         if (!data) return;
     } else if (submitType.type == "task" || submitType.type == "complete") {
-        var data = getTaskPopupData(submitType.action);
+        var data = getTaskPopupData(submitType.action, submitType.type);
         if (!data) return;
     }
 
