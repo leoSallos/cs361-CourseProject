@@ -4,6 +4,7 @@ const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Frida
 var dayList = [];
 var today = new Date();
 const absToday = new Date();
+var popupSelectedIdx = undefined;
 
 // user data
 var prevMonthData = [];
@@ -140,7 +141,7 @@ function makeLocationOrDueText(data){
     return locationOrDueText;
 }
 
-function makeTaskListElement(data, dateIdx){
+function makeTaskListElement(data, dateIdx, taskIdx){
     var bigContainer = document.createElement("div");
     bigContainer.classList.add("task-list-container");
 
@@ -180,7 +181,7 @@ function makeTaskListElement(data, dateIdx){
 
     // task button
     if (data.status != "event"){
-        container.addEventListener("click", function(){openPopup("edit-task", data, dateIdx)});
+        container.addEventListener("click", function(){openPopup("edit-task", data, dateIdx, taskIdx)});
         var taskButton = document.createElement("button");
         taskButton.classList.add("task-completion-button");
         taskButton.addEventListener("click", function(){});
@@ -192,7 +193,7 @@ function makeTaskListElement(data, dateIdx){
         }
         bigContainer.appendChild(taskButton);
     } else {
-        container.addEventListener("click", function(){openPopup("edit-event", data, dateIdx)});
+        container.addEventListener("click", function(){openPopup("edit-event", data, dateIdx, taskIdx)});
     }
 
     return bigContainer;
@@ -230,7 +231,7 @@ function buildTaskList(date){
         tasksToAdd = currMonthData[currDate - 1];
     }
     for (var i = 0; i < 3 && i < tasksToAdd.length; i++){
-        container.appendChild(makeTaskListElement(tasksToAdd[i], currDate - 1));
+        container.appendChild(makeTaskListElement(tasksToAdd[i], currDate - 1, i));
     }
 }
 
@@ -279,7 +280,7 @@ function selectDay(day){
     }
 }
 
-function makeNewCalendarTaskElement(data, relMonth, date){
+function makeNewCalendarTaskElement(data, relMonth, date, taskIdx){
     // make button
     var container = document.createElement("button");
     container.classList.add("task-button");
@@ -287,7 +288,7 @@ function makeNewCalendarTaskElement(data, relMonth, date){
     // make the time text
     var timeText = document.createElement("p");
     if (data.status != "event"){
-        container.addEventListener("click", function(){openPopup("edit-task", data, date, relMonth)});
+        container.addEventListener("click", function(){openPopup("edit-task", data, date, taskIdx, relMonth)});
         switch (data.priority){
             case 0: 
                 timeText.style.color = "green";
@@ -302,7 +303,7 @@ function makeNewCalendarTaskElement(data, relMonth, date){
                 timeText.style.color = "black";
         }
     } else {
-        container.addEventListener("click", function(){openPopup("edit-event", data, date, relMonth)});
+        container.addEventListener("click", function(){openPopup("edit-event", data, date, taskIdx, relMonth)});
     }
     var hour = Math.floor(data.start / 60);
     if (hour < 12 && hour > 1){
@@ -368,12 +369,12 @@ function createEventDivs(idxDate, currMonth){
     }
     if (tasksToAdd.length > 0){
         for (var j = 0; j < 3 && j < tasksToAdd.length; j++){
-            taskElements[j] = makeNewCalendarTaskElement(tasksToAdd[j], taskMonth, idxDateNum);
+            taskElements[j] = makeNewCalendarTaskElement(tasksToAdd[j], taskMonth, idxDateNum, j);
         }
         if (tasksToAdd.length > 4){
             // add "show more" element
         } else if (tasksToAdd.length == 4){
-            taskElements[3] = makeNewCalendarTaskElement(tasksToAdd[3], taskMonth, idxDateNum);
+            taskElements[3] = makeNewCalendarTaskElement(tasksToAdd[3], taskMonth, idxDateNum, 3);
         }
     }
 
@@ -556,12 +557,31 @@ function closePopup(){
     removeErrorTexts();
 }
 
-function openPopup(popupName, data, date, relMonth){
+function fillEventData(data){
+}
+
+function fillTaskData(data){
+}
+
+function openPopup(popupName, data, date, idx, relMonth){
+    // make popup visable
     var container = document.getElementById(popupName + "-popup-container");
     container.classList.remove("hidden");
 
+    popupSelectedIdx = {date: date, idx: idx, month: relMonth};
+
+    // fill with data
     if (data){
-        // fill data into inputs, and identifier
+        switch (data.status){
+            case "event":
+                fillEventData(data, relMonth);
+                break;
+            case "task":
+                break;
+            case "complete":
+                break;
+            default:
+        }
     }
 }
 
@@ -728,12 +748,88 @@ async function submitData(submitType){
 
     // rebuild calendar
     await getUserData(today);
+    clearTaskList();
     clearCalendar();
     buildCalendar(today);
     buildTaskList(today);
 
     // close popup after submit
     closePopup();
+}
+
+async function removeEntry(editing){
+    if (isNaN(editing)){
+        var alertMessage = "Error in deleting item.";
+    } else {
+        var alertMessage = "Error updating item.";
+    }
+
+    if (!popupSelectedIdx){
+        alert(alertMessage);
+        return;
+    }
+
+    // get data
+    switch (popupSelectedIdx.month){
+        case "c":
+            var data = currMonthData;
+            break;
+        case "p":
+            var data = prevMonthData;
+            break;
+        case "n":
+            var data = nextMonthData;
+            break;
+        default:
+            alert(alertMessage);
+            return;
+    }
+    if (!data[popupSelectedIdx.date] || data[popupSelectedIdx.date] == [] || !data[popupSelectedIdx.date][popupSelectedIdx.idx]){
+        alert(alertMessage);
+        return;
+    }
+
+    // confirmation message
+    if (data[popupSelectedIdx.date][popupSelectedIdx.idx].status == "event"){
+        var type = "event";
+    } else {
+        var type = "task";
+    }
+    if (isNaN(editing)){
+        if(!confirm("Are you sure you want to delete this " + type + "?")) return;
+    }
+
+    // remove from list
+    const dataYear = data[popupSelectedIdx.date][popupSelectedIdx.idx].date.year;
+    const dataMonth = data[popupSelectedIdx.date][popupSelectedIdx.idx].date.month;
+    data[popupSelectedIdx.date].splice(popupSelectedIdx.idx, 1);
+
+    // post to server
+    const userID = localStorage.getItem("userID");
+    await fetch("/data/" + userID + "/" + dataMonth + "-" + dataYear + ".json", {
+        method: "POST",
+        body: JSON.stringify({ date: data}) + "\n",
+        headers: {"Content-Type": "application/json"}
+    }).then(function(res){
+        if (res.status != 200){
+            alert("Error: could not submit data");
+            return;
+        }
+    });
+
+
+    if (isNaN(editing)){
+        // rebuild calendar
+        await getUserData(today);
+        clearTaskList();
+        clearCalendar();
+        buildCalendar(today);
+        buildTaskList(today);
+
+
+        // close popup after delete
+        closePopup();
+    }
 }
 
 async function getMonthData(userID, year, month){
