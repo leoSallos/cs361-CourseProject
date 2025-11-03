@@ -1,10 +1,10 @@
 var userSettings = {
     tags: [],
-    timeSlots: {
-        unavailable: [],
-        notPreferable: [],
-        flexable: [],
-    },
+    timeslots: [
+        [],
+        [],
+        [],
+    ],
     clock: "",
     theme: "",
 }
