@@ -573,7 +573,17 @@ function fillEventData(data){
 
     // date
     var date = document.getElementById("edit-event-date");
-    date.value = data.date.year + "-" + (data.date.month + 1) + "-" + (data.date.date + 1);
+    if (data.date.month + 1 < 10){
+        var monthNum = "0" + (data.date.month + 1);
+    } else {
+        var monthNum = (data.date.month + 1);
+    }
+    if (data.date.date + 1 < 10){
+        var dateNum = "0" + (data.date.date + 1);
+    } else {
+        var dateNum = (data.date.date + 1);
+    }
+    date.value = data.date.year + "-" + monthNum + "-" + dateNum;
 
     // start
     var startHr = Math.floor(data.start / 60);
