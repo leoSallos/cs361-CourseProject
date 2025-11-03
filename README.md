@@ -15,10 +15,10 @@ about in your week.
 - **Friday**
 - [x] Server accepts POST requests
 - [x] Welcome popup
-- [ ] Add task/event popup
+- [x] Add task/event popup
     - [x] visual block
     - [x] open/close
-    - [ ] functional creation of new events (not tasks yet)
+    - [x] functional creation of new events (not tasks yet)
 - **Saturday**
 - [ ] Edit tast/event popup
     - [ ] visual block
