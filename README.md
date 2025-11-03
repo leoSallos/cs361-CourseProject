@@ -23,7 +23,7 @@ about in your week.
     - [x] visual block
     - [x] open/close
     - [x] edit data
-- [ ] Settings Page
+- [x] Settings Page
 - [ ] User schedule preferences
     - [ ] functional task creation
 - [x] Database connection with server
