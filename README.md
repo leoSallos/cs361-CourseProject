@@ -30,3 +30,16 @@ about in your week.
     - [x] sync tasks/events
 - [x] Visual modes
 - [ ] Visual polish
+- [ ] Implement Login Service
+    - [ ] Login page
+    - [ ] Redirection when signed out
+    - [ ] Sign out
+- [ ] Implement Notificaiton Service
+    - [ ] Drawer
+    - [ ] Pop-up
+    - [ ] Settings
+- [ ] Implement Online Status Service
+    - [ ] User List
+- [ ] Implement Notes Panel Service
+    - [ ] Popup
+    - [ ] Save/submit
