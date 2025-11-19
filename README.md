@@ -31,8 +31,8 @@ about in your week.
 - [x] Visual modes
 - [ ] Visual polish
 - [ ] Implement Login Service
-    - [ ] Login page
-    - [ ] Redirection when signed out
+    - [x] Login page
+    - [x] Redirection when signed out
     - [ ] Sign out
 - [ ] Implement Notificaiton Service
     - [ ] Drawer
