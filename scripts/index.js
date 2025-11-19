@@ -44,4 +44,11 @@ async function getUserSettings(){
     }
 }
 
-localStorage.setItem("userID", "00000000");
+function init(){
+    // check if logged in
+    if (!localStorage.getItem("userID")){
+        window.location.replace("/login.html");
+    }
+}
+
+init();
