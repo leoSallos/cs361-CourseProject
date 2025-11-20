@@ -20,9 +20,10 @@ async function signIn(){
         headers: {
             "Content-Type": 'application/json; charset=UTF-8'
         }
-    }).then( (res) => {
-        const loginResult = res.json();
-        if (loginResult.userID == -1){
+    }).then(async function(res) {
+        const loginResult = await res.json();
+        console.log(loginResult);
+        if (loginResult.userID == -1 || !loginResult.userID){
             // login failed
             console.error("Login Failed");
             console.error(loginResult.message);
