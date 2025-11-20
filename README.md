@@ -31,7 +31,7 @@ about in your week.
 - [x] Visual modes
 - [ ] Visual polish
 - [ ] Implement Login Service
-    - [ ] Connection to microservice
+    - [x] Connection to microservice
     - [x] Login page
     - [x] Redirection when signed out
     - [ ] Sign out
