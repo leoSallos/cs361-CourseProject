@@ -31,15 +31,19 @@ about in your week.
 - [x] Visual modes
 - [ ] Visual polish
 - [ ] Implement Login Service
+    - [ ] Connection to microservice
     - [x] Login page
     - [x] Redirection when signed out
     - [ ] Sign out
 - [ ] Implement Notificaiton Service
+    - [ ] Connection to microservice
     - [ ] Drawer
     - [ ] Pop-up
     - [ ] Settings
 - [ ] Implement Online Status Service
+    - [ ] Connection to microservice
     - [ ] User List
 - [ ] Implement Notes Panel Service
+    - [ ] Connection to microservice
     - [ ] Popup
     - [ ] Save/submit
