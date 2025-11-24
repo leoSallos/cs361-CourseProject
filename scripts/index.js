@@ -55,6 +55,12 @@ function signOut(){
     window.location.replace("/login.html");
 }
 
+function usersDrawer(){
+}
+
+function notificationsDrawer(){
+}
+
 function init(){
     // check if logged in
     if (!localStorage.getItem("userID")){
