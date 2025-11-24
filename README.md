@@ -4,6 +4,18 @@ Website that automatically plans tasks like homework and chores for you accordin
 to your preferences and existing events/tasks, so you have one less thing to thing
 about in your week.
 
+# External Services
+
+[Login Service](https://github.com/leoSallos/cs361-group16-login-service)
+
+[Notification Service](https://github.com/leoSallos/cs361-group16-notification-service)
+
+[Online Status Service](https://github.com/leoSallos/cs361-group16-onlineStatus)
+
+[Notes Service](https://github.com/leoSallos/cs361-group16-notes)
+
+[Time Zone Conversion Service]()
+
 # TODO
 
 - [x] Server accepts GET requests
