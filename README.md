@@ -42,11 +42,11 @@ about in your week.
     - [x] sync tasks/events
 - [x] Visual modes
 - [ ] Visual polish
-- [ ] Implement Login Service
+- [x] Implement Login Service
     - [x] Connection to microservice
     - [x] Login page
     - [x] Redirection when signed out
-    - [ ] Sign out
+    - [x] Sign out
 - [ ] Implement Notificaiton Service
     - [ ] Connection to microservice
     - [ ] Drawer

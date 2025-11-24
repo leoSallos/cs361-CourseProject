@@ -44,6 +44,17 @@ async function getUserSettings(){
     }
 }
 
+function promptSignOut(){
+    var signOutButton = document.getElementById("sign-out-button");
+
+    signOutButton.classList.toggle("hidden");
+}
+
+function signOut(){
+    localStorage.removeItem("userID");
+    window.location.replace("/login.html");
+}
+
 function init(){
     // check if logged in
     if (!localStorage.getItem("userID")){
