@@ -46,10 +46,23 @@ async function getUserSettings(){
     }
 }
 
-function promptSignOut(){
-    var signOutButton = document.getElementById("sign-out-button");
+function hideDrawers(){
+    var drawers = document.getElementsByClassName("header-list-container");
 
-    signOutButton.classList.toggle("hidden");
+    for (var i = 0; i < drawers.length; i++){
+        drawers[i].classList.add("hidden");
+    }
+}
+
+function accountDrawer(){
+    var container = document.getElementById("account-list-container");
+
+    const open = container.classList.contains("hidden");
+    hideDrawers();
+
+    if (open){
+        container.classList.remove("hidden");
+    }
 }
 
 function signOut(){
@@ -90,10 +103,40 @@ async function markOnline(){
     }
 }
 
+async function updateUsersDrawer(container){
+}
+
 function usersDrawer(){
+    var container = document.getElementById("users-list-container");
+    const open = container.classList.contains("hidden");
+
+    hideDrawers();
+
+    if (open){
+        // update drawer
+        updateUsersDrawer(container);
+
+        // open drawer
+        container.classList.remove("hidden");
+    }
+}
+
+async function updateNotificationsDrawer(container){
 }
 
 function notificationsDrawer(){
+    var container = document.getElementById("notifications-list-container");
+    const open = container.classList.contains("hidden");
+
+    hideDrawers();
+
+    if (open){
+        // update drawer
+        updateNotificationsDrawer(container);
+
+        // open drawer
+        container.classList.remove("hidden");
+    }
 }
 
 async function init(){

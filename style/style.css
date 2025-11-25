@@ -25,7 +25,7 @@ header {
     display: flex;
     justify-content: space-between;
     height: 75px;
-    width: 382px;
+    width: 315px;
     margin-right: 20px;
 }
 
@@ -47,6 +47,12 @@ body.dark .site-title a {
 
 body.high-contrast .site-title a {
     color: white;
+}
+
+.header-list-container {
+    border: black solid 1px;
+    position: absolute;
+    top: 8vb;
 }
 
 /* Site-Wide Popups */

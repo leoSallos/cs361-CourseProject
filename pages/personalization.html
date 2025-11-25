@@ -2,6 +2,7 @@
 <html>
     <head>
         <title>Auto Planner - Personalization</title>
+        <meta charset="UTF-8">
         <!-- Load First -->
         <script src="scripts/index.js"></script>
         <!-- -->
@@ -21,13 +22,22 @@
                     <a href="/personalization.html">
                         <img src="/img/cog.webp" alt="temp cog" width="75" height="75">
                     </a>
-                    <img src="/img/account.webp" onclick="promptSignOut()" alt="temp cog" width="75" height="75">
-                    <button id="sign-out-button" class="hidden" onclick="signOut();">
-                        Sign Out
-                    </button>
+                    <img src="/img/account.webp" onclick="promptSignOut()" alt="temp account" width="75" height="75">
                 </div>
             </div>
         </header>
+
+        <div id="notifications-list-container" class="hidden header-list-container" style="right: 280px;">
+        </div>
+
+        <div id="users-list-container" class="hidden header-list-container" style="right: 200px;">
+        </div>
+
+        <div id="account-list-container" class="hidden header-list-container" style="right: 50px;">
+            <button id="sign-out-button" onclick="signOut();">
+                Sign Out
+            </button>
+        </div>
 
         <main>
             <div class="side-menu">
