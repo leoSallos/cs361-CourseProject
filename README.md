@@ -53,7 +53,7 @@ about in your week.
     - [ ] Pop-up
     - [ ] Settings
 - [ ] Implement Online Status Service
-    - [ ] Connection to microservice
+    - [x] Connection to microservice
     - [ ] User List
 - [ ] Implement Notes Panel Service
     - [ ] Connection to microservice

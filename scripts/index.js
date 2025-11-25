@@ -7,6 +7,7 @@ var userSettings = {
     ],
     clock: "",
     theme: "",
+    onlineStatusID: "",
 }
 
 async function postUserSettings(){
@@ -37,6 +38,7 @@ async function getUserSettings(){
         userSettings = data;
         // set theme
         var body = document.querySelector("body");
+        if (!body) return;
         body.classList.remove("light");
         body.classList.remove("dark");
         body.classList.remove("high-contrast");
@@ -55,17 +57,64 @@ function signOut(){
     window.location.replace("/login.html");
 }
 
+async function getOnlineStatusID(){
+    const res = await fetch("http://localhost:8007/new", {
+        method: "POST",
+        body: JSON.stringify({name: localStorage.getItem("userID")}),
+        headers: {
+            "Content-Type": 'application/json; charset=UTF-8'
+        }
+    });
+
+    if (res.ok){
+        const onlineID = await res.json()
+        userSettings.onlineStatusID = onlineID.id;
+    }
+
+    await postUserSettings();
+}
+
+async function markOnline(){
+    // check if no user id
+    if (userSettings.onlineStatusID === ""){ 
+        await getOnlineStatusID();
+        return;
+    }
+
+    // tell server to mark online
+    const res = await fetch("http://localhost:8007/online/" + userSettings.onlineStatusID);
+
+    // get new user id
+    if (res.status == 404){ 
+        await getOnlineStatusID();
+    }
+}
+
 function usersDrawer(){
 }
 
 function notificationsDrawer(){
 }
 
-function init(){
+async function init(){
     // check if logged in
     if (!localStorage.getItem("userID")){
         window.location.replace("/login.html");
+        return;
     }
+
+    // get user data
+    await getUserSettings();
+
+    // mark as newly online
+    await markOnline();
 }
 
 init();
+
+
+// 1 min timer for online status
+const oneMin = 1000 * 60;
+const interval = setInterval(() => {
+    markOnline();
+}, oneMin);
