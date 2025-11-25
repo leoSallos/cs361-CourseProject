@@ -50,6 +50,7 @@ body.high-contrast .site-title a {
 }
 
 .header-list-container {
+    background-color: #fff;
     border: black solid 1px;
     position: absolute;
     top: 8vb;

@@ -10,6 +10,10 @@ var userSettings = {
     onlineStatusID: "",
 }
 
+//
+// User Settings
+//
+
 async function postUserSettings(){
     const userID = localStorage.getItem("userID");
     await fetch("/data/" + userID + "/settings.json", {
@@ -46,29 +50,9 @@ async function getUserSettings(){
     }
 }
 
-function hideDrawers(){
-    var drawers = document.getElementsByClassName("header-list-container");
-
-    for (var i = 0; i < drawers.length; i++){
-        drawers[i].classList.add("hidden");
-    }
-}
-
-function accountDrawer(){
-    var container = document.getElementById("account-list-container");
-
-    const open = container.classList.contains("hidden");
-    hideDrawers();
-
-    if (open){
-        container.classList.remove("hidden");
-    }
-}
-
-function signOut(){
-    localStorage.removeItem("userID");
-    window.location.replace("/login.html");
-}
+//
+// Online Status Connetion
+//
 
 async function getOnlineStatusID(){
     const res = await fetch("http://localhost:8007/new", {
@@ -103,7 +87,70 @@ async function markOnline(){
     }
 }
 
+//
+// Header Drawers
+//
+
+function hideDrawers(){
+    var drawers = document.getElementsByClassName("header-list-container");
+
+    for (var i = 0; i < drawers.length; i++){
+        drawers[i].classList.add("hidden");
+    }
+}
+
+function clearDrawer(container){
+    while (container.lastChild && container.lastChild.tagName != "BUTTON"){
+        container.removeChild(container.lastChild);
+    }
+}
+
+// account drawer
+function accountDrawer(){
+    var container = document.getElementById("account-list-container");
+
+    const open = container.classList.contains("hidden");
+    hideDrawers();
+
+    if (open){
+        container.classList.remove("hidden");
+    }
+}
+
+function signOut(){
+    localStorage.removeItem("userID");
+    window.location.replace("/login.html");
+}
+
+// users status drawer
 async function updateUsersDrawer(container){
+    clearDrawer(container);
+
+    // get users list
+    const res = await fetch("http://localhost:8007/list");
+    const usersObj = await res.json();
+    const users = usersObj.users;
+
+    // create list
+    if (users){
+        for (var i = 0; i < users.length; i++){
+            var userContainer = document.createElement("div");
+            userContainer.classList.add("users-list-element");
+
+            var nameText = document.createElement("p");
+            nameText.textContent = users[i].name;
+            userContainer.appendChild(nameText);
+
+            var statusText = document.createElement("p");
+            statusText.textContent = users[i].status;
+            userContainer.appendChild(statusText);
+
+            container.appendChild(userContainer);
+        }
+    } else {
+        var emptyText = document.createElement("p");
+        emptyText.textContent = "No users found.";
+    }
 }
 
 function usersDrawer(){
@@ -121,6 +168,7 @@ function usersDrawer(){
     }
 }
 
+// notifications drawer
 async function updateNotificationsDrawer(container){
 }
 
@@ -139,6 +187,10 @@ function notificationsDrawer(){
     }
 }
 
+//
+// Initialization and Global Logic
+//
+
 async function init(){
     // check if logged in
     if (!localStorage.getItem("userID")){
@@ -154,7 +206,6 @@ async function init(){
 }
 
 init();
-
 
 // 1 min timer for online status
 const oneMin = 1000 * 60;

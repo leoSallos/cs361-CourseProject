@@ -52,9 +52,9 @@ about in your week.
     - [ ] Drawer
     - [ ] Pop-up
     - [ ] Settings
-- [ ] Implement Online Status Service
+- [x] Implement Online Status Service
     - [x] Connection to microservice
-    - [ ] User List
+    - [x] User List
 - [ ] Implement Notes Panel Service
     - [ ] Connection to microservice
     - [ ] Popup
