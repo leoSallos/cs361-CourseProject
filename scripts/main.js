@@ -240,7 +240,7 @@ function makeTaskListElement(data, dateIdx, taskIdx){
 
     // task button
     if (data.status != "event"){
-        container.addEventListener("click", function(){openPopup("edit-task", data, dateIdx, taskIdx)});
+        container.addEventListener("click", function(){openPopup("edit-task", data, dateIdx, taskIdx, 'c')});
         var taskButton = document.createElement("button");
         taskButton.classList.add("task-completion-button");
         taskButton.addEventListener("click", function(){toggleTaskCompletion(data)});
@@ -252,7 +252,7 @@ function makeTaskListElement(data, dateIdx, taskIdx){
         }
         bigContainer.appendChild(taskButton);
     } else {
-        container.addEventListener("click", function(){openPopup("edit-event", data, dateIdx, taskIdx)});
+        container.addEventListener("click", function(){openPopup("edit-event", data, dateIdx, taskIdx, 'c')});
     }
 
     return bigContainer;
