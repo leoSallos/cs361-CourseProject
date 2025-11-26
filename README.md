@@ -61,9 +61,9 @@ about in your week.
     - [x] Sign out
 - [ ] Implement Notificaiton Service
     - [x] Connection to microservice
-    - [ ] Drawer
+    - [x] Drawer
+    - [ ] Notification Generation
     - [ ] Pop-up
-    - [ ] Settings
 - [x] Implement Online Status Service
     - [x] Connection to microservice
     - [x] User List

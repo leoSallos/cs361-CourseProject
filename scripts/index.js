@@ -231,6 +231,18 @@ function notificationsDrawer(){
     }
 }
 
+async function clearAllNotifications(){
+    // send request to server
+    const res = await fetch("http://localhost:8003/remove/" + localStorage.getItem("userID"));
+    if (res.status != 200){
+        alert("Could not clear notifications.");
+    }
+    
+    // update drawer
+    const container = document.getElementById("notifications-list-container");
+    updateNotificationsDrawer(container);
+}
+
 //
 // Notifications Popup
 //
