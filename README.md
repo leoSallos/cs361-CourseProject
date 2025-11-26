@@ -42,6 +42,17 @@ about in your week.
     - [x] sync tasks/events
 - [x] Visual modes
 - [ ] Visual polish
+    - [ ] Calendar
+    - [ ] Tasks List
+    - [ ] Header
+        - [ ] Title/Icons
+        - [ ] Drawers
+    - [ ] Settings Page
+    - [ ] Input Popups
+    - [ ] Notes Panel
+    - [ ] Notification Popup
+    - [ ] Dark Mode
+    - [ ] High-Contrast Mode
 - [x] Implement Login Service
     - [x] Connection to microservice
     - [x] Login page
