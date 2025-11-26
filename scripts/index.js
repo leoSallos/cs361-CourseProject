@@ -169,7 +169,51 @@ function usersDrawer(){
 }
 
 // notifications drawer
+function makeEmptyDrawer(container){
+    var emptyText = document.createElement("p");
+    emptyText.textContent = "No Notifications";
+    container.appendChild(emptyText);
+}
+
+function fillNotificationsDrawer(container, data){
+    for (var i = 0; i < data.length; i++){
+        var notification = document.createElement("div");
+        notification.classList.add("notification-list-element");
+        
+        var name = document.createElement("p");
+        name.textContent = data[i].name;
+        notification.appendChild(name);
+
+        var dateTime = document.createElement("p");
+        dateTime.textContent = data[i].date, data[i].time;
+        notification.appendChild(dateTime);
+
+        var status = document.createElement("p");
+        status.textContent = data[i].status;
+        notification.appendChild(status);
+
+        container.appendChild(notification);
+    }
+}
+
 async function updateNotificationsDrawer(container){
+    clearDrawer(container);
+
+    // get notification data
+    const res = await fetch("http://localhost:8003/all/" + localStorage.getItem("userID"));
+    if (res.status != 200){
+        makeEmptyDrawer(container);
+        return;
+    }
+    const data = await res.json();
+    const notifications = data.notifications;
+
+    // make drawer elements
+    if (!notifications || notifications.length == 0){
+        makeEmptyDrawer(container);
+    } else {
+        fillNotificationsDrawer(container, notifications);
+    }
 }
 
 function notificationsDrawer(){
@@ -212,7 +256,7 @@ async function init(){
 
 init();
 
-// 1 min timer for online status
+// 1 min timer for service updating
 const oneMin = 1000 * 60;
 const interval = setInterval(() => {
     markOnline();

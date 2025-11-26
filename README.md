@@ -60,7 +60,7 @@ about in your week.
     - [x] Redirection when signed out
     - [x] Sign out
 - [ ] Implement Notificaiton Service
-    - [ ] Connection to microservice
+    - [x] Connection to microservice
     - [ ] Drawer
     - [ ] Pop-up
     - [ ] Settings
