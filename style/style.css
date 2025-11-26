@@ -56,6 +56,8 @@ body.high-contrast .site-title a {
     top: 8vb;
 }
 
+/* Notifications */
+
 /* Site-Wide Popups */
 
 .popup-container-wrapper {
@@ -90,8 +92,6 @@ body.high-contrast .site-title a {
     justify-content: center;
 }
 
-/* Site Footer */
-
 /* Dark Mode */
 body.dark {
     background-color: #444;
@@ -114,6 +114,7 @@ body.high-contrast div {
     border-color: white;
 }
 
+/* Hidden Property */
 
 .hidden {
     display: none;
