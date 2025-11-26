@@ -252,7 +252,7 @@ function makeTaskListElement(data, dateIdx, taskIdx){
         }
         bigContainer.appendChild(taskButton);
     } else {
-        container.addEventListener("click", function(){openPopup("edit-event", data, dateIdx, taskIdx, 'c')});
+        container.addEventListener("click", function(){openPopup("edit-event", data, dateIdx, taskIdx)});
     }
 
     return bigContainer;
@@ -1310,6 +1310,102 @@ function addTags(){
             tagSelects[i].appendChild(newOption);
         }
     }
+}
+
+// notes panel service
+function clearNotesInterface(){
+    const container = document.getElementById("notes-interface-container");
+
+    while (container.lastChild){
+        container.removeChild(container.lastChild);
+    }
+}
+
+async function makeNotesList(container){
+    // get note data
+    var notes = undefined;
+    const res = await fetch("http://localhost:8006/list/" + localStorage.getItem("userID"));
+    if (res.status == 200){
+        const data = await res.json();
+        notes = data.notes;
+    }
+
+    // add notes list to interface
+    if (notes && notes.length > 0){
+        for (var i = 0; i < notes.length; i++){
+            var noteButton = document.createElement("button");
+            const id = notes[i].id;
+            noteButton.addEventListener("click", function(){openNote(id)});
+
+            var titleText = document.createElement("p");
+            titleText.textContent = notes[i].title;
+            noteButton.appendChild(titleText);
+
+            const updateTime = new Date(notes[i].updated);
+            var updateText = document.createElement("p");
+            updateText.textContent = "Last updated: " + updateTime.getFullYear() 
+                + "-" + (updateTime.getMonth()+1) + "-" + updateTime.getDate();
+            noteButton.appendChild(updateText);
+
+            container.appendChild(noteButton);
+        }
+    } else {
+        var emptyListText = "<p>No Notes</p>";
+        container.innerHTML += emptyListText;
+    }
+
+    // add new note button
+    var newButton = document.createElement("button");
+    newButton.classList.add("note-bottom-button");
+    newButton.addEventListener("click", function(){openNote(null);});
+    newButton.textContent = "New";
+    container.parentNode.appendChild(newButton);
+}
+
+async function getFullNote(noteID){
+    const res = await fetch("http://localhost:8006/get/" + localStorage.getItem("userID") + "/" + noteID);
+    if (res.status == 200){
+        return await res.json();
+    } else {
+        alert("could not recieve note data");
+        return null;
+    }
+}
+
+async function openNote(noteID){
+    // prepare interface
+    clearNotesInterface();
+    const container = document.getElementById("notes-interface-container");
+    container.classList = [];
+    container.classList.add("notes-draft");
+
+    // create structure
+    
+
+    // fill with default data
+    if (noteID != null){
+        const data = await getFullNote(noteID);
+        if (!data) return;
+        console.log(data);
+    }
+}
+
+async function updateNotesPanel(){
+    const container = document.getElementById("notes-interface-container");
+    if (container.classList.contains("notes-base")){
+        makeNotesList(container);
+        container.classList.remove("notes-base");
+        container.classList.add("notes-list");
+    } else if (!container.classList.contains("notes-list") && !container.classList.contains("notes-draft")){
+        // edge case
+        container.classList.add("notes-base");
+    }
+}
+
+function toggleNotesPanel(){
+    const container = document.getElementById("notes-panel-container");
+    if (container.classList.contains("hidden")) updateNotesPanel();
+    container.classList.toggle("hidden");
 }
 
 async function init(){
