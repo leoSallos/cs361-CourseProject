@@ -55,7 +55,7 @@ about in your week.
 - [x] Implement Online Status Service
     - [x] Connection to microservice
     - [x] User List
-- [ ] Implement Notes Panel Service
+- [x] Implement Notes Panel Service
     - [x] Connection to microservice
     - [x] Popup
-    - [ ] Save/submit
+    - [x] Save/submit

@@ -1328,8 +1328,47 @@ function clearNotesInterface(){
     }
 }
 
-async function submitNote(noteID, isNewNote){
+async function submitNote(noteID){
+    // get time data
+    const currDate = new Date();
+    const currTime = currDate.getTime();
+
+    // get input data
+    var data = {updated: currTime};
+
+    const title = document.getElementById("note-title-input");
+    if (title.value === ""){
+        data.title = "Untitled Note";
+    } else {
+        data.title = title.value;
+    }
+
     const textContent = document.getElementById("note-content-input");
+    data.textContent = textContent.value;
+    
+    // setup request
+    var submitPath = "http://localhost:8006/";
+    if (noteID == null){
+        data.created = currTime;
+        submitPath += "new/" + localStorage.getItem("userID");
+    } else {
+        submitPath += "update/" + localStorage.getItem("userID") + "/" + noteID;
+    }
+
+    // post note
+    const res = await fetch(submitPath, {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: {"Content-Type": "application/json"}
+    });
+    if (res.status != 200){
+        alert("Error submitting note.");
+        return;
+    }
+
+    // clear interface
+    const container = document.getElementById("notes-interface-container");
+    makeNotesList(container);
 }
 
 function cancelNote(){
@@ -1369,6 +1408,12 @@ async function makeNotesList(container){
             updateText.textContent = "Last updated: " + updateTime.getFullYear() 
                 + "-" + (updateTime.getMonth()+1) + "-" + updateTime.getDate();
             noteButton.appendChild(updateText);
+
+            const createTime = new Date(notes[i].created);
+            var createText = document.createElement("p");
+            createText.textContent = "Date created: " + createTime.getFullYear() 
+                + "-" + (createTime.getMonth()+1) + "-" + createTime.getDate();
+            noteButton.appendChild(createText);
 
             container.appendChild(noteButton);
         }
@@ -1414,10 +1459,7 @@ async function openNote(noteID){
     contentInput.cols = "15";
     
     // fill with default data
-    var isNewNote = true;
     if (noteID != null){
-        isNewNote = false;
-
         // get data
         const data = await getFullNote(noteID);
         if (!data) return;
@@ -1435,7 +1477,7 @@ async function openNote(noteID){
     const buttonContainer = document.getElementById("notes-bottom-buttons-container");
     var submitButton = document.createElement("button");
     submitButton.classList.add("note-bottom-button");
-    submitButton.addEventListener("click", function(){submitNote(noteID, isNewNote);});
+    submitButton.addEventListener("click", function(){submitNote(noteID);});
     submitButton.textContent = "Submit";
     buttonContainer.appendChild(submitButton);
     var cancelButton = document.createElement("button");
