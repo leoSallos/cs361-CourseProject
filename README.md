@@ -56,6 +56,6 @@ about in your week.
     - [x] Connection to microservice
     - [x] User List
 - [ ] Implement Notes Panel Service
-    - [ ] Connection to microservice
+    - [x] Connection to microservice
     - [ ] Popup
     - [ ] Save/submit
