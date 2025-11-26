@@ -53,6 +53,7 @@ about in your week.
     - [ ] Notification Popup
     - [ ] Dark Mode
     - [ ] High-Contrast Mode
+- [ ] Rework Timeslots System
 - [x] Implement Login Service
     - [x] Connection to microservice
     - [x] Login page
