@@ -113,9 +113,17 @@ main {
     max-height: 425px;
 }
 
-.note-bottom-button {
+#notes-bottom-buttons-container {
     position: absolute;
     bottom: 10px;
+}
+
+.note-bottom-button {
+}
+
+#note-content-input {
+    overflow: scroll;
+    resize: none;
 }
 
 /* Popups */

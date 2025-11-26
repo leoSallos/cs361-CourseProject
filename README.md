@@ -57,5 +57,5 @@ about in your week.
     - [x] User List
 - [ ] Implement Notes Panel Service
     - [x] Connection to microservice
-    - [ ] Popup
+    - [x] Popup
     - [ ] Save/submit

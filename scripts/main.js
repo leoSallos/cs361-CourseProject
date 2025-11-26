@@ -1316,12 +1316,35 @@ function addTags(){
 function clearNotesInterface(){
     const container = document.getElementById("notes-interface-container");
 
+    // clear interface
     while (container.lastChild){
         container.removeChild(container.lastChild);
+    }
+
+    // clear bottom button
+    const bottomButtons = document.getElementById("notes-bottom-buttons-container");
+    while (bottomButtons.lastChild){
+        bottomButtons.removeChild(bottomButtons.lastChild);
+    }
+}
+
+async function submitNote(noteID, isNewNote){
+    const textContent = document.getElementById("note-content-input");
+}
+
+function cancelNote(){
+    if (confirm("Are you sure?\nYour changes will not be saved.")){
+        const container = document.getElementById("notes-interface-container");
+        makeNotesList(container);
     }
 }
 
 async function makeNotesList(container){
+    // prepare interface
+    clearNotesInterface();
+    container.classList = [];
+    container.classList.add("notes-list");
+
     // get note data
     var notes = undefined;
     const res = await fetch("http://localhost:8006/list/" + localStorage.getItem("userID"));
@@ -1355,11 +1378,12 @@ async function makeNotesList(container){
     }
 
     // add new note button
+    const buttonContainer = document.getElementById("notes-bottom-buttons-container");
     var newButton = document.createElement("button");
     newButton.classList.add("note-bottom-button");
     newButton.addEventListener("click", function(){openNote(null);});
     newButton.textContent = "New";
-    container.parentNode.appendChild(newButton);
+    buttonContainer.appendChild(newButton);
 }
 
 async function getFullNote(noteID){
@@ -1380,24 +1404,53 @@ async function openNote(noteID){
     container.classList.add("notes-draft");
 
     // create structure
+    const titleInput = document.createElement("input");
+    titleInput.id = "note-title-input";
+    titleInput.placeholder = "Click to Add Title...";
+    const contentInput = document.createElement("textarea");
+    contentInput.id = "note-content-input";
+    contentInput.placeholder = "Write note here...";
+    contentInput.rows = "3";
+    contentInput.cols = "15";
     
-
     // fill with default data
+    var isNewNote = true;
     if (noteID != null){
+        isNewNote = false;
+
+        // get data
         const data = await getFullNote(noteID);
         if (!data) return;
-        console.log(data);
+
+        // insert data
+        titleInput.value = data.title;
+        contentInput.textContent = data.textContent;
     }
+
+    // append intputs to interface
+    container.appendChild(titleInput);
+    container.appendChild(contentInput);
+
+    // add submit note button
+    const buttonContainer = document.getElementById("notes-bottom-buttons-container");
+    var submitButton = document.createElement("button");
+    submitButton.classList.add("note-bottom-button");
+    submitButton.addEventListener("click", function(){submitNote(noteID, isNewNote);});
+    submitButton.textContent = "Submit";
+    buttonContainer.appendChild(submitButton);
+    var cancelButton = document.createElement("button");
+    cancelButton.classList.add("note-bottom-button");
+    cancelButton.addEventListener("click", function(){cancelNote();});
+    cancelButton.textContent = "Cancel";
+    buttonContainer.appendChild(cancelButton);
 }
 
 async function updateNotesPanel(){
     const container = document.getElementById("notes-interface-container");
     if (container.classList.contains("notes-base")){
         makeNotesList(container);
-        container.classList.remove("notes-base");
-        container.classList.add("notes-list");
     } else if (!container.classList.contains("notes-list") && !container.classList.contains("notes-draft")){
-        // edge case
+        // error case
         container.classList.add("notes-base");
     }
 }
