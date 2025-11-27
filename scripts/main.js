@@ -252,7 +252,7 @@ function makeTaskListElement(data, dateIdx, taskIdx){
         }
         bigContainer.appendChild(taskButton);
     } else {
-        container.addEventListener("click", function(){openPopup("edit-event", data, dateIdx, taskIdx)});
+        container.addEventListener("click", function(){openPopup("edit-event", data, dateIdx, taskIdx, 'c')});
     }
 
     return bigContainer;
