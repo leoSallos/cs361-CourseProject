@@ -1546,7 +1546,6 @@ async function generateNewNotifications(){
             status: "unread",
             class: "reminder"
         };
-        console.log(JSON.stringify(object));
 
         // send object
         const res = await fetch("http://localhost:8003/new/" + localStorage.getItem("userID"), {
@@ -1560,6 +1559,34 @@ async function generateNewNotifications(){
 }
 
 async function pullNotifications(){
+    // get unread notifications
+    const res = await fetch("http://localhost:8003/unread/" + localStorage.getItem("userID"));
+    if (!res.ok){
+        alert("Could not recieve notification information.");
+        return;
+    }
+    const data = await res.json();
+    const notifications = data.notifications;
+    console.log(notifications);
+
+    // show notifications on popup
+    for (var i = 0; i < notifications.length; i++){
+        // open popup
+        const popupContainer = document.getElementById("notifications-popup-container");
+        popupContainer.classList.remove("hidden");
+        
+        // fill popup content
+        const popupContent = document.querySelectorAll("#notification-content-container p");
+        popupContent[0].textContent = notifications[i].name;
+        popupContent[1].textContent = notifications[i].time;
+
+        // keep popup on screen for 5 seconds
+        await new Promise(r => setTimeout(r, 5000));
+
+        // hide popup and wait 1s for the next action
+        popupContainer.classList.add("hidden");
+        await new Promise(r => setTimeout(r, 1000));
+    }
 }
 
 async function updateNotifications(){

@@ -59,11 +59,11 @@ about in your week.
     - [x] Login page
     - [x] Redirection when signed out
     - [x] Sign out
-- [ ] Implement Notificaiton Service
+- [x] Implement Notificaiton Service
     - [x] Connection to microservice
     - [x] Drawer
     - [x] Notification Generation
-    - [ ] Pop-up
+    - [x] Pop-up
 - [x] Implement Online Status Service
     - [x] Connection to microservice
     - [x] User List

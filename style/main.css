@@ -130,3 +130,13 @@ main {
 .popup-error-text {
     color: red;
 }
+
+#notifications-popup-container {
+    position: absolute;
+    right: 5px;
+    top: 8.5vb;
+    background-color: white;
+    width: 300px;
+    height: 100px;
+    border: 1px solid black;
+}
