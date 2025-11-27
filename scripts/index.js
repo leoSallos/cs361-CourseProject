@@ -185,7 +185,7 @@ function fillNotificationsDrawer(container, data){
         notification.appendChild(name);
 
         var dateTime = document.createElement("p");
-        dateTime.textContent = data[i].date, data[i].time;
+        dateTime.textContent = data[i].date + " " + data[i].time;
         notification.appendChild(dateTime);
 
         var status = document.createElement("p");
@@ -244,11 +244,6 @@ async function clearAllNotifications(){
 }
 
 //
-// Notifications Popup
-//
-
-
-//
 // Initialization and Global Logic
 //
 
@@ -272,4 +267,7 @@ init();
 const oneMin = 1000 * 60;
 const interval = setInterval(() => {
     markOnline();
+    if (window.location.pathname == "/"){
+        updateNotifications();
+    }
 }, oneMin);

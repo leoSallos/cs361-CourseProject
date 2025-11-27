@@ -62,7 +62,7 @@ about in your week.
 - [ ] Implement Notificaiton Service
     - [x] Connection to microservice
     - [x] Drawer
-    - [ ] Notification Generation
+    - [x] Notification Generation
     - [ ] Pop-up
 - [x] Implement Online Status Service
     - [x] Connection to microservice

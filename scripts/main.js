@@ -1511,6 +1511,62 @@ async function init(){
     buildTaskList(today);
 }
 
+// notification popup
+async function generateNewNotifications(){
+    // get todays events
+    const currTime = new Date();
+    const currDate = currTime.getDate() - 1;
+    const todaysEvents = currMonthData[currDate];
+
+    // get events in the last minute
+    var eventsToAdd = [];
+    if (todaysEvents){
+        const currMins = (currTime.getHours() * 60) + currTime.getMinutes()
+        const lastMins = currMins - 1;
+
+        for (var i = 0; i < todaysEvents.length; i++){
+            if (todaysEvents[i].start > lastMins || todaysEvents[i] <= currMins){
+                eventsToAdd.push(todaysEvents[i]);
+            }
+        }
+    }
+
+    // make JSON objects and send them
+    for (var i = 0; i < eventsToAdd.length; i++){
+        // make object
+        const date = currTime.getFullYear() + "-" + (currTime.getMonth() + 1) + "-" + currTime.getDate();
+        const temp = userSettings.clock;
+        userSettings.clock = "24hr";
+        const time = convertToTime(eventsToAdd[i].start);
+        userSettings.clock = temp;
+        var object = {
+            name: eventsToAdd[i].name,
+            date: date,
+            time: time,
+            status: "unread",
+            class: "reminder"
+        };
+        console.log(JSON.stringify(object));
+
+        // send object
+        const res = await fetch("http://localhost:8003/new/" + localStorage.getItem("userID"), {
+            method: "POST",
+            body: JSON.stringify(object),
+            headers: {"Content-Type": "application/json"}
+        });
+
+        if (!res.ok) console.error("Notification Update:", res.message);
+    }
+}
+
+async function pullNotifications(){
+}
+
+async function updateNotifications(){
+    await generateNewNotifications();
+    await pullNotifications();
+}
+
 // start of program
 init();
 
