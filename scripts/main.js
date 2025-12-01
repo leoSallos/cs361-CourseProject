@@ -844,8 +844,10 @@ async function getEventPopupData(containerAction){
     if (timezoneName && timezoneName != ""){
         const res = await fetch("http://localhost:8013/offset?city=" + timezoneName);
         if (res.ok){
-            const resData = await res.json;
-            const offset = resData.offset;
+            const resData = await res.json();
+            const tzOffset = resData.offset;
+            const localOffset = -absToday.getTimezoneOffset();
+            const offset = tzOffset - localOffset;
             const dayMin = 60 * 24;
             const dayMSec = 1000 * 60 * dayMin;
             data.start += offset;
@@ -857,16 +859,17 @@ async function getEventPopupData(containerAction){
                 } else {
                     data.end = dayMin - 1;
                 }
-                const oldDate = new Date(data.date.year, data.date.month, data.date.day);
+                const oldDate = new Date(data.date.year, data.date.month, data.date.day + 1);
                 const newDate = new Date(oldDate.getTime() - dayMSec);
                 data.date.year = newDate.getFullYear();
                 data.date.month = newDate.getMonth();
                 data.date.date = newDate.getDay() - 1;
             } else if (data.start >= dayMin){
                 data.start %= dayMin;
-                date.end %= dayMin;
-                const oldDate = new Date(data.date.year, data.date.month, data.date.day);
+                data.end %= dayMin;
+                const oldDate = new Date(data.date.year, data.date.month, data.date.date + 1);
                 const newDate = new Date(oldDate.getTime() + dayMSec);
+                console.log(oldDate, newDate);
                 data.date.year = newDate.getFullYear();
                 data.date.month = newDate.getMonth();
                 data.date.date = newDate.getDay() - 1;
@@ -875,6 +878,7 @@ async function getEventPopupData(containerAction){
             makeErrorMessage(startElement, "Timezone city not found.");
             failed = true;
         }
+        console.log(data)
     }
 
 
