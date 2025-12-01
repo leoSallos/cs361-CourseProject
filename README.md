@@ -72,5 +72,6 @@ about in your week.
     - [x] Popup
     - [x] Save/submit
 - [ ] Time Zone Convertor Service
-    - [ ] Offset UI element in event creation/event and task editing
-    - [ ] Connection to microservice
+    - [x] Offset UI element in event creation/event and task editing
+    - [x] Connection to microservice
+    - [ ] Get timezone changes working

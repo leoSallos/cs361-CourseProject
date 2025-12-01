@@ -777,7 +777,7 @@ function makeErrorMessage(element, message){
     element.parentNode.insertBefore(errorMessage, element);
 }
 
-function getEventPopupData(containerAction){
+async function getEventPopupData(containerAction){
     var failed = false;
     var data = {
         name: "",
@@ -837,6 +837,46 @@ function getEventPopupData(containerAction){
         data.end = endData[0] * 60;
         data.end += endData[1] * 1;
     }
+
+    // timezone
+    var timezoneElement = document.getElementById(containerAction + "-event-timezone");
+    var timezoneName = timezoneElement.value;
+    if (timezoneName && timezoneName != ""){
+        const res = await fetch("http://localhost:8013/offset?city=" + timezoneName);
+        if (res.ok){
+            const resData = await res.json;
+            const offset = resData.offset;
+            const dayMin = 60 * 24;
+            const dayMSec = 1000 * 60 * dayMin;
+            data.start += offset;
+            data.end += offset;
+            if (data.start < 0){
+                data.start += dayMin;
+                if (data.end < 0){
+                    data.end += dayMin;
+                } else {
+                    data.end = dayMin - 1;
+                }
+                const oldDate = new Date(data.date.year, data.date.month, data.date.day);
+                const newDate = new Date(oldDate.getTime() - dayMSec);
+                data.date.year = newDate.getFullYear();
+                data.date.month = newDate.getMonth();
+                data.date.date = newDate.getDay() - 1;
+            } else if (data.start >= dayMin){
+                data.start %= dayMin;
+                date.end %= dayMin;
+                const oldDate = new Date(data.date.year, data.date.month, data.date.day);
+                const newDate = new Date(oldDate.getTime() + dayMSec);
+                data.date.year = newDate.getFullYear();
+                data.date.month = newDate.getMonth();
+                data.date.date = newDate.getDay() - 1;
+            }
+        } else {
+            makeErrorMessage(startElement, "Timezone city not found.");
+            failed = true;
+        }
+    }
+
 
     // start-end error checking
     if (data.end < data.start){
@@ -1126,10 +1166,10 @@ async function submitData(submitType){
 
     // get data
     if (submitType.type == "event"){
-        var data = getEventPopupData(submitType.action);
+        var data = await getEventPopupData(submitType.action);
         if (!data) return;
     } else if (submitType.type == "task" || submitType.type == "complete") {
-        var data = getTaskPopupData(submitType.action, submitType.type);
+        var data = await getTaskPopupData(submitType.action, submitType.type);
         if (!data) return;
     }
 
