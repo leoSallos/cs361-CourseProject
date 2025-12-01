@@ -869,7 +869,6 @@ async function getEventPopupData(containerAction){
                 data.end %= dayMin;
                 const oldDate = new Date(data.date.year, data.date.month, data.date.date + 1);
                 const newDate = new Date(oldDate.getTime() + dayMSec);
-                console.log(oldDate, newDate);
                 data.date.year = newDate.getFullYear();
                 data.date.month = newDate.getMonth();
                 data.date.date = newDate.getDay() - 1;
@@ -878,7 +877,6 @@ async function getEventPopupData(containerAction){
             makeErrorMessage(startElement, "Timezone city not found.");
             failed = true;
         }
-        console.log(data)
     }
 
 
@@ -1028,7 +1026,7 @@ function calulateTaskPosition(data, length, canUseUnavailable){
     return false;
 }
 
-function getTaskPopupData(containerAction, type){
+async function getTaskPopupData(containerAction, type){
     var failed = false;
     var data = {
         name: "",
@@ -1054,14 +1052,6 @@ function getTaskPopupData(containerAction, type){
     data.name = nameElement.value;
     if (!data.name || data.name == ""){
         makeErrorMessage(nameElement, "Must add a name");
-        failed = true;
-    }
-
-    // length
-    var lengthElement = document.getElementById(containerAction + "-task-length");
-    const length = lengthElement.value;
-    if (length <= 0){
-        makeErrorMessage(lengthElement, "Length must be greater than 0.");
         failed = true;
     }
 
@@ -1101,8 +1091,30 @@ function getTaskPopupData(containerAction, type){
             makeErrorMessage(priotityElement, "Must set a priority for the task");
             failed = true;
     }
-        
-    if (containerAction == "edit"){
+
+    if (containerAction != "edit"){
+        // length
+        var lengthElement = document.getElementById(containerAction + "-task-length");
+        const length = lengthElement.value;
+        if (length <= 0){
+            makeErrorMessage(lengthElement, "Length must be greater than 0.");
+            failed = true;
+        }
+
+        if (!failed) {
+            // set position & time
+            if (!calulateTaskPosition(data, length, false)){ 
+                if (confirm("Could not find position for task.\nWould you like to include blocked timeslots in the selection?")){
+                    if (!calulateTaskPosition(data, length, true)){
+                        alert("Could not find position for task.");
+                        failed = true;
+                    }
+                } else {
+                    failed = true;
+                }
+            }
+        }
+    } else {
         // date
         var dateElement = document.getElementById(containerAction + "-task-date");
         var dateString = dateElement.value;
@@ -1145,17 +1157,46 @@ function getTaskPopupData(containerAction, type){
             makeErrorMessage(startElement, "End time must be after the start time.");
             failed = true;
         }
-    } else if (!failed) {
-        // set position & time
-        if (!calulateTaskPosition(data, length, false)){ 
-            if (confirm("Could not find position for task.\nWould you like to include blocked timeslots in the selection?")){
-                if (!calulateTaskPosition(data, length, true)){
-                    alert("Could not find position for task.");
-                    failed = true;
+
+        // timezone
+        var timezoneElement = document.getElementById(containerAction + "-task-timezone");
+        var timezoneName = timezoneElement.value;
+        if (timezoneName && timezoneName != ""){
+            const res = await fetch("http://localhost:8013/offset?city=" + timezoneName);
+            if (res.ok){
+                const resData = await res.json();
+                const tzOffset = resData.offset;
+                const localOffset = -absToday.getTimezoneOffset();
+                const offset = tzOffset - localOffset;
+                const dayMin = 60 * 24;
+                const dayMSec = 1000 * 60 * dayMin;
+                data.start += offset;
+                data.end += offset;
+                if (data.start < 0){
+                    data.start += dayMin;
+                    if (data.end < 0){
+                        data.end += dayMin;
+                    } else {
+                        data.end = dayMin - 1;
+                    }
+                    const oldDate = new Date(data.date.year, data.date.month, data.date.day + 1);
+                    const newDate = new Date(oldDate.getTime() - dayMSec);
+                    data.date.year = newDate.getFullYear();
+                    data.date.month = newDate.getMonth();
+                    data.date.date = newDate.getDay() - 1;
+                } else if (data.start >= dayMin){
+                    data.start %= dayMin;
+                    data.end %= dayMin;
+                    const oldDate = new Date(data.date.year, data.date.month, data.date.date + 1);
+                    const newDate = new Date(oldDate.getTime() + dayMSec);
+                    data.date.year = newDate.getFullYear();
+                    data.date.month = newDate.getMonth();
+                    data.date.date = newDate.getDay() - 1;
                 }
-            } else {
-                failed = true;
             }
+        } else {
+            makeErrorMessage(startElement, "Timezone city not found.");
+            failed = true;
         }
     }
 
