@@ -1,41 +1,39 @@
 const days = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 
-function insertValidTimeslot(start, end, row, day){
+function insertValidTimeslot(start, end, day){
     // check for conflict
-    for (var i = 0; i < 3; i++){
-        if (userSettings.timeslots[i].length > day){ 
-            if (userSettings.timeslots[i][day].length > 0){
-                for (var j = 0; j < userSettings.timeslots[i][day].length; j++){
-                    const dataStart = userSettings.timeslots[i][day][j].start;
-                    const dataEnd = userSettings.timeslots[i][day][j].end;
-                    if ((dataStart == null && dataEnd == null) ||
-                        (dataStart == null && dataEnd > start) ||
-                        (dataEnd == null && dataStart <= end) ||
-                        (dataStart <= start && dataEnd > start) ||
-                        (dataEnd > end && dataStart <= end)){
-                        return false;
-                    }
+    if (userSettings.timeslots.length > day){ 
+        if (userSettings.timeslots[day].length > 0){
+            for (var j = 0; j < userSettings.timeslots[day].length; j++){
+                const dataStart = userSettings.timeslots[day][j].start;
+                const dataEnd = userSettings.timeslots[day][j].end;
+                if ((dataStart == null && dataEnd == null) ||
+                    (dataStart == null && dataEnd > start) ||
+                    (dataEnd == null && dataStart <= end) ||
+                    (dataStart <= start && dataEnd > start) ||
+                    (dataEnd > end && dataStart <= end)){
+                    return false;
                 }
             }
-        } 
-    }
-
-    // insert into row
-    if (userSettings.timeslots[row].length <= day){
-        while (userSettings.timeslots[row].length < day){
-            userSettings.timeslots[row].push([]);
         }
-        userSettings.timeslots[row].push([{start: start, end: end}]);
-    } else if (userSettings.timeslots[row][day].length == 0){
-        userSettings.timeslots[row][day] = [{start: start, end: end}];
+    } 
+
+    // insert into data
+    if (userSettings.timeslots.length <= day){
+        while (userSettings.timeslots.length < day){
+            userSettings.timeslots.push([]);
+        }
+        userSettings.timeslots.push([{start: start, end: end}]);
+    } else if (userSettings.timeslots[day].length == 0){
+        userSettings.timeslots[day] = [{start: start, end: end}];
     } else {
         var prevBack = false;
-        for (var i = 0; i < userSettings.timeslots[row][day].length; i++){
-            const dataStart = userSettings.timeslots[row][day][i].start;
-            const dataEnd = userSettings.timeslots[row][day][i].end;
+        for (var i = 0; i < userSettings.timeslots[day].length; i++){
+            const dataStart = userSettings.timeslots[day][i].start;
+            const dataEnd = userSettings.timeslots[day][i].end;
             if (prevBack){
                 if (dataStart > end){
-                    userSettings.timeslots[row][day][i].splice(i, 0, {start: start, end: end});
+                    userSettings.timeslots[day][i].splice(i, 0, {start: start, end: end});
                 } else {
                     prevBack == false;
                 }
@@ -44,7 +42,7 @@ function insertValidTimeslot(start, end, row, day){
             }
         }
 
-        userSettings.timeslots[row][day].push({start: start, end: end});
+        userSettings.timeslots[day].push({start: start, end: end});
     }
     
     return true;
@@ -58,7 +56,7 @@ function closeAddNewTimeslot(addButton, submitButton, startInput, endInput, canc
     submitButton.parentNode.removeChild(submitButton);
 }
 
-function submitTimeslot(row, day, addButton, submitButton, startInput, endInput, cancelButton){
+function submitTimeslot(day, addButton, submitButton, startInput, endInput, cancelButton){
     // get input values
     if (startInput.value == ""){
         var startTime = null;
@@ -77,7 +75,7 @@ function submitTimeslot(row, day, addButton, submitButton, startInput, endInput,
     }
 
     // insert new timeslot
-    if (!insertValidTimeslot(startTime, endTime, row, day)){
+    if (!insertValidTimeslot(startTime, endTime, day)){
         alert("Timeslot has overlap.");
         return;
     }
@@ -93,9 +91,9 @@ function submitTimeslot(row, day, addButton, submitButton, startInput, endInput,
     insertTimeslots();
 }
 
-function addTimeslot(row, day){
+function addTimeslot(day){
     // get button and container
-    var button = document.querySelector("#r" + (row + 1) + "-" + days[day] + " .add-timeslot-button");
+    var button = document.querySelector("#" + days[day] + " .add-timeslot-button");
     button.classList.add("hidden");
 
     // make time inputs
@@ -115,7 +113,7 @@ function addTimeslot(row, day){
     cancelButton.textContent = "Cancel";
 
     cancelButton.addEventListener("click", function(){closeAddNewTimeslot(button, submitButton, startInput, endInput, cancelButton)});
-    submitButton.addEventListener("click", function(){submitTimeslot(row, day, button, submitButton, startInput, endInput, cancelButton)});
+    submitButton.addEventListener("click", function(){submitTimeslot(day, button, submitButton, startInput, endInput, cancelButton)});
 
     button.parentNode.insertBefore(startInput, button);
     button.parentNode.insertBefore(endInput, button);
@@ -123,11 +121,11 @@ function addTimeslot(row, day){
     button.parentNode.insertBefore(submitButton, button);
 }
 
-function removeTimeslot(row, day, idx){
+function removeTimeslot(day, idx){
     if (!confirm("Are you sure you want to delete this timeslot?")) return;
 
     // splice timeslot from data
-    userSettings.timeslots[row][day].splice(idx, 1);
+    userSettings.timeslots[day].splice(idx, 1);
 
     // submit changes
     postUserSettings();
@@ -189,38 +187,32 @@ function convertToTime(totalMins){
 function insertTimeslots(){
     var timeslotDays = document.getElementsByClassName("timeslot-day-container");
 
-    var row = 0;
     for (var i = 0; i < timeslotDays.length; i++){
-        if (i != 0 && i % 7 == 0) row++;
-        
-        if (userSettings.timeslots[row].length > i % 7){
-            if (userSettings.timeslots[row][i%7] == null) userSettings.timeslots[row][i%7] = [];
-            for (var j = 0; j < userSettings.timeslots[row][i%7].length; j++){
-                var newTimeslot = document.createElement("button");
-                newTimeslot.classList.add("timeslot-button");
+        if (userSettings.timeslots[i] == null) userSettings.timeslots[i] = [];
+        for (var j = 0; j < userSettings.timeslots[i].length; j++){
+            var newTimeslot = document.createElement("button");
+            newTimeslot.classList.add("timeslot-button");
 
-                // get time to display
-                const start = userSettings.timeslots[row][i%7][j].start;
-                if (start == null){
-                    var startString = "-";
-                } else {
-                    var startString = convertToTime(start);
-                }
-                const end = userSettings.timeslots[row][i%7][j].end;
-                if (end == null){
-                    var endString = "-";
-                } else {
-                    var endString = convertToTime(end);
-                }
-                newTimeslot.textContent = startString + " " + endString;
-
-                const rowParam = row;
-                const dayParam = i%7;
-                const idxParam = j;
-                newTimeslot.addEventListener("click", function(){removeTimeslot(rowParam, dayParam, idxParam)});
-
-                timeslotDays[i].insertBefore(newTimeslot, timeslotDays[i].querySelector(".add-timeslot-button"));
+            // get time to display
+            const start = userSettings.timeslots[i][j].start;
+            if (start == null){
+                var startString = "-";
+            } else {
+                var startString = convertToTime(start);
             }
+            const end = userSettings.timeslots[i][j].end;
+            if (end == null){
+                var endString = "-";
+            } else {
+                var endString = convertToTime(end);
+            }
+            newTimeslot.textContent = startString + " " + endString;
+
+            const dayParam = i;
+            const idxParam = j;
+            newTimeslot.addEventListener("click", function(){removeTimeslot(dayParam, idxParam)});
+
+            timeslotDays[i].insertBefore(newTimeslot, timeslotDays[i].querySelector(".add-timeslot-button"));
         }
     }
 }

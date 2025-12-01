@@ -1,10 +1,6 @@
 var userSettings = {
     tags: [],
-    timeslots: [
-        [],
-        [],
-        [],
-    ],
+    timeslots: [],
     clock: "",
     theme: "",
     onlineStatusID: "",
