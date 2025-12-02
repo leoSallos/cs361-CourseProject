@@ -122,7 +122,7 @@ function makeLocationOrDueText(data){
     } else {
         var dueDate = " | Due ";
         var topOfToday = new Date(absToday.getFullYear(), absToday.getMonth(), absToday.getDate());
-        var dueDateDate = new Date(data.due.year, data.due.month, data.due.date);
+        var dueDateDate = new Date(data.due.year, data.due.month, data.due.date + 1);
         var timeDiffMS = dueDateDate.getTime() - topOfToday.getTime();
         var timeDiff = Math.floor(timeDiffMS / 1000 / 60 / 60 / 24);
         if (timeDiff < 8 && timeDiff > 1){
@@ -934,11 +934,7 @@ function checkEventOverlap(date, start, length){
     return true;
 }
 
-function checkTimeslotDay(day, length){
-    var timeslot = {
-        start: 0,
-        status: true,
-    };
+function checkTimeslotDay(timeslot, day, length){
     const dayInMin = 60 * 24;
 
     // no entry
@@ -964,6 +960,9 @@ function checkTimeslotDay(day, length){
             return timeslot;
         }
     }
+
+    timeslot.status = false;
+    return timeslot;
 }
 
 function calulateTaskPosition(data, length, canUseUnavailable){
@@ -971,55 +970,50 @@ function calulateTaskPosition(data, length, canUseUnavailable){
     const dueDate = new Date(data.due.year, data.due.month, data.due.date + 1);
     const dayInMs = 1000 * 60 * 60 * 24;
 
-    // loop for each level of acceptance
-    for (var i = 3; i >= 0; i--){
-        if (i == 0 && !canUseUnavailable) break;
+    // loop for each day till due date
+    while ((dueDate.getTime() + (dayInMs - 1)) >= idx.getTime()){
+        const day = idx.getDay();
+        var timeslot = {
+            start: 0,
+            status: true,
+        };
 
-        // loop for each day till due date
-        while ((dueDate.getTime() + (dayInMs - 1)) >= idx.getTime()){
-            const day = idx.getDay();
-            var timeslot = {
-                start: 0,
-                status: true,
-            };
+        // check timeslots
+        if (i > 0 && !canUseUnavailable){
+            timeslot = checkTimeslotDay(timeslot, userSettings.timeslots[day], Number(length));
+        }
 
-            // check timeslots
-            if (i > 0 && !canUseUnavailable){
-                timeslot = checkTimeslotDay(userSettings.timeslots[0][day], Number(length));
+        // check events
+        if (timeslot.status){
+            var res = checkEventOverlap(idx, timeslot.start, length);
+            if (res == undefined){
+                alert("Calculating unloaded month, please choose due date closer to selected day on calendar.");
+                return false;
+            } else if (res == false){
             }
+        }
 
-            // check events
-            if (timeslot.status){
-                var res = checkEventOverlap(idx, timeslot.start, length);
-                if (res == undefined){
-                    alert("Calculating unloaded month, please choose due date closer to selected day on calendar.");
-                    return false;
-                } else if (res == false){
-                }
-            }
+        // correct found
+        if (timeslot.status){
+            data.date.year = idx.getFullYear();
+            data.date.month = idx.getMonth();
+            data.date.date = idx.getDate() - 1;
+            data.start = timeslot.start;
+            data.end = timeslot.start + Number(length);
+            return true;
+        }
 
-            // correct found
-            if (timeslot.status){
-                data.date.year = idx.getFullYear();
-                data.date.month = idx.getMonth();
-                data.date.date = idx.getDate() - 1;
-                data.start = timeslot.start;
-                data.end = timeslot.start + length;
-                return true;
-            }
+        // increment day
+        var incTime = idx.getTime();
+        idx = new Date(incTime + dayInMs);
 
-            // increment day
-            var incTime = idx.getTime();
-            idx = new Date(incTime + dayInMs);
-
-            // account for daylight savings
-            const idxHours = idx.getHours();
-            incTime = idx.getTime();
-            if (idxHours == 23){
-                idx = new Date(incTime + (dayInMs / 24));
-            } else if (idxHours == 1){
-                idx = new Date(incTime - (dayInMs / 24));
-            }
+        // account for daylight savings
+        const idxHours = idx.getHours();
+        incTime = idx.getTime();
+        if (idxHours == 23){
+            idx = new Date(incTime + (dayInMs / 24));
+        } else if (idxHours == 1){
+            idx = new Date(incTime - (dayInMs / 24));
         }
     }
 
@@ -1652,7 +1646,6 @@ async function pullNotifications(){
     }
     const data = await res.json();
     const notifications = data.notifications;
-    console.log(notifications);
 
     // show notifications on popup
     for (var i = 0; i < notifications.length; i++){

@@ -57,7 +57,7 @@ Server only works with Zig version 0.15.1.
     - [ ] Notification Popup
     - [ ] Dark Mode
     - [ ] High-Contrast Mode
-- [ ] Rework Timeslots System
+- [x] Rework Timeslots System
 - [x] Implement Login Service
     - [x] Connection to microservice
     - [x] Login page
